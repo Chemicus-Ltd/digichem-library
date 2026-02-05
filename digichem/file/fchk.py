@@ -50,7 +50,6 @@ class Chk_to_fchk(File_converter):
             output,
             chk_file = chk_file,
             memory = memory,
-            formchk_executable = options['external']['formchk'],
             **kwargs
         )
         
