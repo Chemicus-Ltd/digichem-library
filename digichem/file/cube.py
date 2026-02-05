@@ -85,7 +85,7 @@ class Fchk_to_cube(File_converter):
             cube_file = None,
             num_cpu = None,
             memory = None,
-            cubegen_executable = "cubegen",
+            cubegen_executable = None,
             sanitize = False,
             multithreading = None,
             **kwargs):
@@ -118,6 +118,7 @@ class Fchk_to_cube(File_converter):
         else:
             self.num_cpu = int(num_cpu) if num_cpu is not None else os.cpu_count()
         
+        cubegen_executable = cubegen_executable or "cubegen"
         self.cubegen_executable = expand_path(cubegen_executable)
         self.sanitize = sanitize
         
