@@ -30,6 +30,8 @@ class Crest_parser(Parser_abc):
         # Metadata we can get entirely from our passed in program object.
         self.data.metadata = {
             "name": self.mol_name,
+            "user": self.program.calculation.user.username,
+            "userID": self.program.calculation.user.userID,
             "jobId": self.program.calculation.job_id,
             "wall_time": [self.program.duration],
             "cpu_time": [self.program.duration * self.program.calculation.performance['num_cpu']],

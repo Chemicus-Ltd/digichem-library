@@ -145,6 +145,7 @@ class Metadata(Result_object):
             jobId = None,
             name = None,
             user = None,
+            userID = None,
             log_files = None,
             auxiliary_files = None,
             history = None,
@@ -181,6 +182,7 @@ class Metadata(Result_object):
         :param jobId: If this result was generated from a digichem calculation, the relevant jobID.
         :param name: Optional name of this calculation result.
         :param user: The username of the user who parsed this result.
+        :param userID: The unique ID of the user who parsed this result.
         :param log_files: An optional list of text-based calculation log files from which this result was parsed.
         :param auxiliary_files: An optional dict of auxiliary files associated with this calculation result.
         :param history: Optional SHA of the calculation from which the coordinates of this calculation were generated.
@@ -209,6 +211,7 @@ class Metadata(Result_object):
         self.num_calculations = 1
         self.name = name
         self.user = user
+        self.userID = userID
         self.log_files = log_files if log_files is not None else []
         self.auxiliary_files = auxiliary_files if auxiliary_files is not None and len(auxiliary_files) != 0 else {}
         self.history = history
@@ -462,6 +465,7 @@ class Metadata(Result_object):
                 jobId = parser.data.metadata.get('jobId', None),
                 name = parser.data.metadata.get('name', None),
                 user = parser.data.metadata.get('user', None),
+                userID = parser.data.metadata.get('userID', None),
                 log_files = parser.data.metadata.get('log_files', None),
                 auxiliary_files = parser.data.metadata.get('auxiliary_files', None),
                 date = date,
@@ -509,6 +513,7 @@ class Metadata(Result_object):
             "charge",
             "multiplicity",
             "user",
+            "userID",
             "package",
             "package_version",
             "digichem_version",
@@ -627,7 +632,7 @@ class Merged_metadata(Metadata):
         """
         # Our merged metadata.
         merged_metadata = self(num_calculations = len(multiple_metadatas))
-        for attr in ("name", "user", "package", "package_version", "functional", "basis_set"):
+        for attr in ("name", "user", "userID", "package", "package_version", "functional", "basis_set"):
             setattr(merged_metadata, attr, self.merged_attr(attr, multiple_metadatas))
             
         # We take the latest of the two dates.
