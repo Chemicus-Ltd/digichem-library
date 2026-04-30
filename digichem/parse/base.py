@@ -113,15 +113,16 @@ class Parser_abc():
     def post_parse(self):
         """
         Perform any required operations after line-by-line parsing.
-        """ 
-        # Add current username.
-        # TODO: It would probably be better if we used the name of the user who owns the output file, rather than the current user...
-        self.data.metadata['user'] = self.get_current_username()
-
+        """
         # Add any user supplied defaults.
         metadata = self.metadata_defaults.copy()
         metadata.update(self.data.metadata)
         self.data.metadata = metadata
+
+        if not self.data.metadata['user']:
+            # Add our username, if we don't currently have one.
+            # TODO: It would probably be better if we used the name of the user who owns the output file, rather than the current user...
+            self.data.metadata['user'] = self.get_current_username()
 
         # Add profiling data.
         try:
