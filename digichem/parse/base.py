@@ -119,7 +119,7 @@ class Parser_abc():
         metadata.update(self.data.metadata)
         self.data.metadata = metadata
 
-        if not self.data.metadata['user']:
+        if not self.data.metadata.get('user', None):
             # Add our username, if we don't currently have one.
             # TODO: It would probably be better if we used the name of the user who owns the output file, rather than the current user...
             self.data.metadata['user'] = self.get_current_username()
