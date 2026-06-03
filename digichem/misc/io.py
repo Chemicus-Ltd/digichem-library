@@ -10,6 +10,7 @@ import itertools
 from uuid import uuid4
 import hashlib
 import asyncio
+import socket
 
 from digichem.datas import get_resource
 import digichem.log
@@ -53,6 +54,12 @@ def expand_path(pth):
     This function is similar to calling both os.path.expanduser() and os.path.expandvar(),
     but with some additional functionality for relative paths (which are interpreted relative
     to the silico data dir).
+
+    Extra variables that are expanded:
+    - $SILICO: The digichem data dir (deprecated)
+    - $DIGICHEM: The digichem data dir
+    - $HOSTNAME: The hostname
+    
     """
     pth = str(pth)
     
@@ -62,6 +69,7 @@ def expand_path(pth):
 
     pth = new_pth
     pth = pth.replace("$DIGICHEM", str(get_resource("data")))
+    pth = pth.replace("$HOSTNAME", str(socket.gethostname()))
     pth = os.path.expanduser(pth)
     pth = os.path.expandvars(pth)
     return pth
