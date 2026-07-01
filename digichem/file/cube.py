@@ -351,6 +351,7 @@ class Fchk_to_density_cube(Fchk_to_cube):
             **kwargs
         )
 
+
 class Fchk_to_nto_cube(Fchk_to_cube):
     """
     A variation of the cube maker designed for making NTO cubes.
@@ -509,7 +510,7 @@ class Xtb_to_cube(File_converter):
             molden_file = molden_file,
             index = index,
             target_type = target_type,
-            npts = options['render']['orbital']['cube_grid_size'].to_gaussian(),
+            npts = options['render']['orbital']['cube_grid_size'].translate('points'),
             dont_modify = not options['render']['enable_rendering'],
             sanitize = options['render']['safe_cubes'],
             **kwargs
@@ -535,7 +536,7 @@ class Xtb_to_cube(File_converter):
         #    cubegen.density(self.mol, self.output, self.target.make_rdm1(), nx=self.npts, ny=self.npts, nz=self.npts)
 
         if self.target_type == "orbital":
-            cubegen.orbital(mol, str(self.output), coeff)#, nx=self.npts, ny=self.npts, nz=self.npts)
+            cubegen.orbital(mol, str(self.output), coeff, nx=self.npts, ny=self.npts, nz=self.npts)
         
         else:
             raise ValueError("Unrecognised 'target_type': {}".format(self.target_type))
