@@ -13,6 +13,14 @@ except ModuleNotFoundError:
     # No PySCF.
     cubegen = None
 
+try :
+    from pyscf.tools import molden
+
+except ModuleNotFoundError:
+    # No PySCF.
+    molden = None
+
+
 from digichem.exception.base import File_maker_exception
 from digichem.file import File_converter
 import digichem.file.types as file_types
@@ -303,6 +311,7 @@ class Fchk_to_spin_cube(Fchk_to_cube):
             **kwargs
         )
 
+
 class Fchk_to_density_cube(Fchk_to_cube):
     """
     A variation of the cube maker designed for making density cubes.
@@ -380,6 +389,7 @@ class Fchk_to_nto_cube(Fchk_to_cube):
             **kwargs
         )
 
+
 class PySCF_to_cube(File_maker):
     """
     Generate cubes from a completed PySCF calculation result object.
@@ -442,6 +452,90 @@ class PySCF_to_cube(File_maker):
 
         elif self.target_type == "orbital":
             cubegen.orbital(self.mol, self.output, self.target, nx=self.npts, ny=self.npts, nz=self.npts)
+        
+        else:
+            raise ValueError("Unrecognised 'target_type': {}".format(self.target_type))
+        
+        if self.sanitize:
+            sanitize_modern_cubes(self.output)
+
+
+class Xtb_to_cube(File_converter):
+    """
+    Generate cubes from a completed xTB calculations.
+
+    xTB calculations need to have been run with the --molden flag to generate the necessary output.
+    This class also needs PySCF to parse the molden file and generate the necessary cube.
+    """
+
+    # Text description of our input/output file type, used for error messages etc.
+    input_file_type = file_types.xtb_molden
+    output_file_type = file_types.gaussian_cube_file
+
+    def __init__(
+            self,
+            *args,
+            molden_file = None,
+            index,
+            target_type = "orbital",
+            npts = 80,
+            cube_file = None,
+            sanitize = False,
+            **kwargs):
+        """
+        Constructor for Fchk_to_cube objects.
+        
+        See Image_maker for a full signature.
+        
+        :param output: The filename/path to the cube file (this path doesn't need to point to a real file yet; we will use this path to write to).
+        :param molden_file: Optional molden file to use to generate this cube file.
+        :param sanitize: Whether to modify the cube file to make it compatible with older software.
+        """
+        super().__init__(*args, input_file = molden_file, existing_file = cube_file, **kwargs)
+        self.npts = npts
+        self.sanitize = sanitize
+        self.target_type = target_type
+        self.index = index
+        # TODO: Add some intelligence to this...
+        self.type = "SCF"
+    
+    @classmethod
+    def from_options(self, output, *, molden_file = None, index, target_type = "orbital", options, **kwargs):
+        """
+        Constructor that takes a dictionary of config like options.
+        """        
+        return self(
+            output,
+            molden_file = molden_file,
+            index = index,
+            target_type = target_type,
+            npts = options['render']['orbital']['cube_grid_size'].to_gaussian(),
+            dont_modify = not options['render']['enable_rendering'],
+            sanitize = options['render']['safe_cubes'],
+            **kwargs
+        )
+
+    def check_can_make(self):
+        super().check_can_make()
+
+        if cubegen is None:
+            raise File_maker_exception(self, "PySCF is not available")
+    
+    def make_files(self):
+        """
+        Make the files referenced by this object.
+        """
+        # First, read in the molden file.
+        # data[0] is the mol, data[1] is the orbital energies, data[2] is the coefficients.
+        data = molden.load(str(self.input_file))
+        mol = data[0]
+        coeff = data[2][:,self.index]
+
+        #if self.target_type == "density":
+        #    cubegen.density(self.mol, self.output, self.target.make_rdm1(), nx=self.npts, ny=self.npts, nz=self.npts)
+
+        if self.target_type == "orbital":
+            cubegen.orbital(mol, str(self.output), coeff)#, nx=self.npts, ny=self.npts, nz=self.npts)
         
         else:
             raise ValueError("Unrecognised 'target_type': {}".format(self.target_type))
