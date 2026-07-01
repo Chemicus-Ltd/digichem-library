@@ -53,7 +53,14 @@ with open(get_resource('data/solvents.csv')) as csv_file:
             line = [line_part if line_part != "" else None for line_part in line]
             
             # The various parts of the definition.
-            solvent = {"name": line[0], "aliases": [line[1]] if line[1] is not None else [], "gaussian": line[2], "epsilon": float(line[3]) if line[3] is not None else None, "refractive": float(line[4]) if line[4] is not None else None}
+            solvent = {
+                "name": line[0],
+                "aliases": [line[1]] if line[1] is not None else [],
+                "gaussian": line[2],
+                "epsilon": float(line[3]) if line[3] is not None else None,
+                "refractive": float(line[4]) if line[4] is not None else None,
+                "xTB": line[5],
+            }
             
             solvent_db[solvent['name']] = solvent
 
