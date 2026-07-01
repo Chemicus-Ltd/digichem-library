@@ -13,7 +13,8 @@ class Xtb_parser(Cclib_parser):
     # A dictionary of recognised auxiliary file types.
     INPUT_FILE_TYPES = {
         file_types.xtb_topology: "topology_file",
-        file_types.xtb_molden: "molden_file"
+        file_types.xtb_molden: "molden_file",
+        file_types.xtb_density: "density_file"
     }
     
     def _parse(self):

@@ -543,3 +543,52 @@ class Xtb_to_cube(File_converter):
         
         if self.sanitize:
             sanitize_modern_cubes(self.output)
+
+
+class Xtb_to_density_cube(File_converter):
+    """
+    A variation of the cube maker designed for making density cubes.
+    
+    Note that this class exists mainly for convenience; either class can be used to generate cubes of any supported type.
+    """
+    
+    def __init__(self, output, cube_file, *args, sanitize = False, **kwargs):
+        """
+        Constructor for Fchk_to_cube objects.
+        
+        See Fchk_to_cube for a full signature.
+        
+        :param output: The filename/path to the cube file (this path doesn't need to point to a real file yet; we will use this path to write to).
+        :param density_type: The density to use.
+        :param npts: The 'npts' option of cubegen, controls how detailed the resulting file is. Common options are 0 (default), -2 ('low' quality), -3 (medium quality), -4 (very high quality).
+        :param cube_file: An optional file path to an existing cube file to use. If this is given (and points to an actual file), then a new cube will not be made and this file will be used instead.
+        """
+        super().__init__(output, cube_file, *args, **kwargs)
+        self.type = "SCC"
+        self.sanitize = sanitize
+    
+    @classmethod
+    def from_options(self, output, cube_file, *, options, **kwargs):
+        """
+        Constructor that takes a dictionary of config like options.
+        """        
+        return self(
+            output,
+            cube_file,
+            dont_modify = not options['render']['enable_rendering'],
+            sanitize = options['render']['safe_cubes'],
+            **kwargs
+        )
+    
+    def make_files(self):
+        """
+        Make the files referenced by this object.
+        """
+        # All we do is copy and sanitize.
+        with open(self.input_file, "rt") as input_file:
+            with open(self.output, "wt") as output_file:
+                for data in input_file:
+                    output_file.write(data)
+        
+        if self.sanitize:
+            sanitize_modern_cubes(self.output)
