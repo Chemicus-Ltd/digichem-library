@@ -9,17 +9,19 @@ class File_type():
     Class for representing a known file type.
     """
     
-    def __init__(self, name, family = None, extensions = None, short_code = None):
+    def __init__(self, name, family = None, extensions = None, short_code = None, exact = None):
         """
         Constructor for File_type objects.
         
         :param name: The name of the file (eg, "JPEG").
         :param family: The name of the family/group that the file type belongs to (eg, "image").
         :param extensions: An iterable of known file extensions (this is case-insensitive) (eg, [".jpg", ".jpeg"]).
+        :param exact: An iterable of the file names this file can appear as.
         """
         self.name = name
         self.family = family
         self.extensions = [extension.lower() for extension in extensions] if extensions is not None else []
+        self.exact = exact or []
         
         if short_code is None and len(self.extensions) > 0:
             # Take one of our extensions (without the dot).
@@ -37,6 +39,11 @@ class File_type():
         """
         # Get a Path object.
         file_path = Path(file_path)
+
+        # If we match exactly, then nothing more to do.
+        for exact in self.exact:
+            if file_path.name == exact:
+                return True
         
         # Check to see if the file extension matches one of our file extensions.
         # We recurse through all the given file's extensions in case one of our extensions contains multiple parts (".tar.gz" for example).
@@ -75,6 +82,10 @@ gaussian_cube_file = File_type("cube", "gaussian", [".cub", ".cube"])
 orca_gbw_file = File_type("gbw", "orca", [".gbw"])
 orca_density_file = File_type("density", "orca", [".densities"])
 orca_density_info_file = File_type("density-info", "orca", [".densitiesinfo"])
+
+xtb_topology = File_type("topo", "xtb", exact = ["xtbtopo.mol"], short_code = "xtbtopo.mol")
+xtb_molden = File_type("molden", "xtb", exact = ["molden.input"], short_code = "molden.input")
+
 
 # A list of all our known types.
 known_types = [log_file, gaussian_chk_file, gaussian_fchk_file, gaussian_rwf_file, gaussian_cube_file, orca_gbw_file]

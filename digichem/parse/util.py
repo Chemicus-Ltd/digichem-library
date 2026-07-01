@@ -21,6 +21,7 @@ from digichem.parse.cclib import Cclib_parser
 from digichem.parse.gaussian import Gaussian_parser
 from digichem.parse.turbomole import Turbomole_parser
 from digichem.parse.orca import Orca_parser
+from digichem.parse.xtb import Xtb_parser
 from digichem.result.multi import Merged
 from digichem.result.result import Result_set
 import digichem.log
@@ -154,6 +155,8 @@ def class_from_log_files(*log_files, format_hint = "auto"):
         return Turbomole_parser
     elif log_file_type == cclib.parser.orcaparser.ORCA:
         return Orca_parser
+    elif log_file_type == cclib.parser.xtbparser.XTB:
+        return Xtb_parser
     else:
         return Cclib_parser
 

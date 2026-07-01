@@ -63,6 +63,18 @@ class Cclib_parser(File_parser_abc):
         # Now have a look for aux. input files, which are defined by each parser's INPUT_FILE_TYPES
         auxiliary_files = {}
         for file_type in self.INPUT_FILE_TYPES:
+            for exact in file_type.exact:
+                if hint.is_dir():
+                    # Peak inside.
+                    if Path(hint, exact).exists():
+                        auxiliary_files[self.INPUT_FILE_TYPES[file_type]] = Path(hint, exact)
+                
+                elif Path(hint.parent, exact).exists():
+                    auxiliary_files[self.INPUT_FILE_TYPES[file_type]] = Path(hint.parent, exact)
+                
+                elif hint.name == exact:
+                    auxiliary_files[self.INPUT_FILE_TYPES[file_type]] = hint
+
             for extension in file_type.extensions:
                 if hint.is_dir():
                     # Peak inside.
