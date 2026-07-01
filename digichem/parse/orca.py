@@ -5,7 +5,7 @@ import digichem.log
 
 class Orca_parser(Cclib_parser):
     """
-    Top level class for parsing output from Gaussian log files.
+    Top level class for parsing output from Orca log files.
     """
     
     # A dictionary of recognised auxiliary file types.
