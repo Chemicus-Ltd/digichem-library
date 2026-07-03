@@ -91,7 +91,7 @@ This is on by default for 3D rendered images because they are expensive (time-co
         ),
         
         auto_crop = Option(help = "Whether to enable  automatic cropping of excess whitespace around the border of generated images.  If False, overall image rendering is likely to take less time, but molecules may only occupy a small portion of the true image.", type = bool, default = True),
-        resolution = Option(help = "The target resolution for rendered images. Higher values will increase image quality, at the cost of increased render time and file size.", type = int, default = 512),
+        resolution = Option(help = "The target resolution for rendered images. Higher values will increase image quality, at the cost of increased render time and file size.", type = int, default = 768),
         orbital = Options(help = "Specific options for orbital density plots.",
             cube_grid_size = Option(help =\
 """The size of grid used to generate cube files.
