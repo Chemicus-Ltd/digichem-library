@@ -59,6 +59,13 @@ class Result_object():
         return ((scipy.constants.speed_of_light * scipy.constants.Planck) / (energy * scipy.constants.eV)) * 1000000000
     
     @classmethod
+    def energy_to_wavenumbers(self, energy):
+        """
+        Convert an energy (in eV) to wavenumbers (cm-1)
+        """
+        return 10000000 / self.energy_to_wavelength(energy)
+    
+    @classmethod
     def wavenumbers_to_energy(self, wavenumbers):
         """
         Convert wavenumbers (in cm-1) to energy (in eV).

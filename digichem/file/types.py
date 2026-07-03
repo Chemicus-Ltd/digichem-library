@@ -86,6 +86,7 @@ orca_density_info_file = File_type("density-info", "orca", [".densitiesinfo"])
 xtb_topology = File_type("topo", "xtb", exact = ["xtbtopo.mol"], short_code = "xtbtopo.mol")
 xtb_molden = File_type("molden", "xtb", exact = ["molden.input"], short_code = "molden.input")
 xtb_density = File_type("density", "xtb", exact = ["density.cub"], short_code = "density.cub")
+xtb_std2 = File_type("std2", "xtb", [".std2.log", ".std2.out"])
 
 
 # A list of all our known types.
