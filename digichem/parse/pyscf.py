@@ -33,6 +33,20 @@ class Pyscf_parser(Parser_abc):
         self.data.metadata['name'] = self.mol_name
         self.data._aux = {'methods': self.methods}
 
+        if hasattr(self.data, "etenergies"):
+            # Reorder excited states.
+            # First, set energies properly, keeping track of each energy's old index.
+            energy_index = sorted(
+                [(energy, index) for index, energy in enumerate(self.data.etenergies)],
+                key=lambda energy_index: energy_index[0],
+            )
+            self.data.etenergies = [energy for energy, old_index in energy_index]
+
+            # Sort everything else.
+            for property in ("etdips", "etmagdips", "etoscs", "etrotats", "etsyms", "etsecs", "etveldips"):
+                if hasattr(self.data, property):
+                    setattr(self.data, property, [getattr(self.data, property)[old_index] for energy, old_index in energy_index])
+
         try:
             # Try to generate a checksum from metadata.
             self.data._id = hashlib.sha1(json.dumps(self.data.metadata, sort_keys = True, default = str).encode('utf-8')).hexdigest()
