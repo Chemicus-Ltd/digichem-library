@@ -6,6 +6,7 @@ import csv
 import numpy
 import math
 from scipy import signal
+import itertools
 
 from digichem.exception.base import Digichem_exception
 from digichem.result.orbital import Molecular_orbital_list,\
@@ -37,7 +38,18 @@ custom_parsing_formats = [
 class Parser_abc():
     """ABC for all parsers."""
 
-    def __init__(self, *, raw_data = None, options, ornt = None, ornt_args = (), metadata_defaults = None, profile_file = None, **kwargs):
+    # A dictionary of recognised auxiliary file types.
+    INPUT_FILE_TYPES = {}
+
+    def __init__(
+        self, *,
+        raw_data = None,
+        options, ornt = None,
+        ornt_args = (),
+        metadata_defaults = None,
+        profile_file = None,
+        **auxiliary_files
+    ):
         """
         Top level constructor for calculation parsers.
         """
@@ -59,6 +71,9 @@ class Parser_abc():
         
         # Save the profiling file.
         self.profile_file = profile_file
+
+        # Also save our aux files, stripping None.
+        self.auxiliary_files = {name: aux_file for name,aux_file in auxiliary_files.items() if aux_file is not None}
         
         # Parse (if we haven't already).
         try:
@@ -321,7 +336,7 @@ class Parser_abc():
 class File_parser_abc(Parser_abc):
     """ABC for all parsers."""
     
-    def __init__(self, *log_files, raw_data = None, metadata_defaults = None, **kwargs):
+    def __init__(self, *log_files, raw_data = None, metadata_defaults = None, **auxiliary_files):
         """
         Top level constructor for calculation parsers.
         
@@ -334,17 +349,63 @@ class File_parser_abc(Parser_abc):
         if len(self.log_file_paths) == 0:
             raise Digichem_exception("Cannot parse calculation output; no available log files. Are you sure the given path is a log file or directory containing log files?")
         
-        super().__init__(raw_data=raw_data, metadata_defaults = metadata_defaults, **kwargs)
-
+        super().__init__(raw_data=raw_data, metadata_defaults = metadata_defaults, **auxiliary_files)
+    
     @classmethod
-    def from_logs(self, *log_files, **kwargs):
+    def from_logs(self, *log_files, hints = None, options, **kwargs):
         """
-        Intelligent constructor that will attempt to guess the location of aux files from a given log file(s).
+        Intelligent constructor that will attempt to guess the location of files from a given log file(s).
         
-        :param log_files: Output file(s) to parse or a directory of output files to parse.
+        :param given_log_files: Output file(s) to parse or a directory of output files to parse.
         """
-        # This default implementation does nothing smart.
-        return self(*log_files, **kwargs)
+        # Have a look for aux. files.
+        auxiliary_files = {}
+
+        basename = log_files[0].name if len(log_files) > 0 else ""
+        
+        for hint in itertools.chain(log_files, hints if hints is not None else []):
+            auxiliary_files.update(self.find_auxiliary_files(hint, basename))
+            
+        # Finally, update our auxiliary_files with kwargs, so any user specified aux files take precedence.
+        auxiliary_files.update(kwargs)
+        
+        return self(*log_files, options = options, **auxiliary_files)
+    
+    @classmethod
+    def find_auxiliary_files(self, hint, basename):
+        """
+        Find auxiliary files from a given hint.
+        
+        :param hint: A path to a file to use as a hint to find additional files.
+        :returns: A dictionary of found aux files.
+        """
+        hint = Path(hint)
+        
+        # Now have a look for aux. input files, which are defined by each parser's INPUT_FILE_TYPES
+        auxiliary_files = {}
+        for file_type in self.INPUT_FILE_TYPES:
+            for exact in file_type.exact:
+                if hint.is_dir():
+                    # Peak inside.
+                    if Path(hint, exact).exists():
+                        auxiliary_files[self.INPUT_FILE_TYPES[file_type]] = Path(hint, exact)
+                
+                elif Path(hint.parent, exact).exists():
+                    auxiliary_files[self.INPUT_FILE_TYPES[file_type]] = Path(hint.parent, exact)
+                
+                elif hint.name == exact:
+                    auxiliary_files[self.INPUT_FILE_TYPES[file_type]] = hint
+
+            for extension in file_type.extensions:
+                if hint.is_dir():
+                    # Peak inside.
+                    if Path(hint, basename).with_suffix(extension).exists():
+                        auxiliary_files[self.INPUT_FILE_TYPES[file_type]] = Path(hint, basename).with_suffix(extension)
+
+                if hint.with_suffix(extension).exists():
+                    auxiliary_files[self.INPUT_FILE_TYPES[file_type]] = hint.with_suffix(extension)
+        
+        return auxiliary_files
     
     @classmethod
     def sort_log_files(self, log_files):

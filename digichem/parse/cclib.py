@@ -15,76 +15,14 @@ class Cclib_parser(File_parser_abc):
     ABC for parsers that use cclib to do most of their work for them.
     """
     
-    # A dictionary of recognised auxiliary file types.
-    INPUT_FILE_TYPES = {}
-    
     def __init__(self, *log_files, options, ornt = None, ornt_args = (), metadata_defaults = None, **auxiliary_files):
         """
         Top level constructor for calculation parsers.
         
         :param log_files: A list of output file to analyse/parse. The first log_file given will be used for naming purposes.
         :param auxiliary_files: A dictionary of auxiliary input files related to the calculation.
-        """
-        # Also save our aux files, stripping None.
-        self.auxiliary_files = {name: aux_file for name,aux_file in auxiliary_files.items() if aux_file is not None}
-        
-        super().__init__(*log_files, options = options, ornt = ornt, ornt_args = ornt_args, metadata_defaults = metadata_defaults, profile_file = Path(log_files[0].parent, "../Logs/profile.csv"))
-        
-    @classmethod
-    def from_logs(self, *log_files, hints = None, options, **kwargs):
-        """
-        Intelligent constructor that will attempt to guess the location of files from a given log file(s).
-        
-        :param given_log_files: Output file(s) to parse or a directory of output files to parse.
-        """
-        # Have a look for aux. files.
-        auxiliary_files = {}
-
-        basename = log_files[0].name if len(log_files) > 0 else ""
-        
-        for hint in itertools.chain(log_files, hints if hints is not None else []):
-            auxiliary_files.update(self.find_auxiliary_files(hint, basename))
-            
-        # Finally, update our auxiliary_files with kwargs, so any user specified aux files take precedence.
-        auxiliary_files.update(kwargs)
-        
-        return self(*log_files, options = options, **auxiliary_files)
-    
-    @classmethod
-    def find_auxiliary_files(self, hint, basename):
-        """
-        Find auxiliary files from a given hint.
-        
-        :param hint: A path to a file to use as a hint to find additional files.
-        :returns: A dictionary of found aux files.
-        """
-        hint = Path(hint)
-        
-        # Now have a look for aux. input files, which are defined by each parser's INPUT_FILE_TYPES
-        auxiliary_files = {}
-        for file_type in self.INPUT_FILE_TYPES:
-            for exact in file_type.exact:
-                if hint.is_dir():
-                    # Peak inside.
-                    if Path(hint, exact).exists():
-                        auxiliary_files[self.INPUT_FILE_TYPES[file_type]] = Path(hint, exact)
-                
-                elif Path(hint.parent, exact).exists():
-                    auxiliary_files[self.INPUT_FILE_TYPES[file_type]] = Path(hint.parent, exact)
-                
-                elif hint.name == exact:
-                    auxiliary_files[self.INPUT_FILE_TYPES[file_type]] = hint
-
-            for extension in file_type.extensions:
-                if hint.is_dir():
-                    # Peak inside.
-                    if Path(hint, basename).with_suffix(extension).exists():
-                        auxiliary_files[self.INPUT_FILE_TYPES[file_type]] = Path(hint, basename).with_suffix(extension)
-
-                if hint.with_suffix(extension).exists():
-                    auxiliary_files[self.INPUT_FILE_TYPES[file_type]] = hint.with_suffix(extension)
-        
-        return auxiliary_files
+        """        
+        super().__init__(*log_files, options = options, ornt = ornt, ornt_args = ornt_args, metadata_defaults = metadata_defaults, profile_file = Path(log_files[0].parent, "../Logs/profile.csv"), **auxiliary_files)
     
     def _parse(self):
         """
