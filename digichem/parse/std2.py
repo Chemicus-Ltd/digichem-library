@@ -18,6 +18,9 @@ class Std2_parser_mixin():
             etsyms = []
             etsecs = []
 
+            # Some orbitals are missing in the sTD-DFT treatment (probably core e- ?).
+            orbital_offset = 0
+
             for line in std2_file:
                 if "triplet" in line:
                     " triplet                       :  T"
@@ -25,6 +28,41 @@ class Std2_parser_mixin():
                         symmetry = "Triplet"
                     else:
                         symmetry = "Singlet"
+                
+                if " ordered frontier orbitals" in line:
+                    #  ordered frontier orbitals
+                    #          eV     # centers
+                    #   84    -7.384     3.5
+                    #   85    -7.362     3.4
+                    #   86    -7.215    12.1
+                    #   87    -7.188     8.4
+                    #   88    -7.142    13.9
+                    #   89    -6.987    13.9
+                    #   90    -6.962    12.2
+                    #   91    -6.877    10.6
+                    #   92    -6.722     9.0
+                    #   93    -6.604     9.4
+                    #   94    -5.108     8.0
+
+                    #   95    -2.189    10.7
+                    #   96    -2.129    10.2
+                    #   97    -0.858    16.7
+                    #   98    -0.680     6.6
+                    #   99    -0.366     8.6
+                    #  100    -0.364     8.9
+                    #  101    -0.286     9.8
+                    #  102    -0.199    10.2
+                    #  103     0.135    11.1
+                    #  104     0.634    13.0
+                    #  105     0.784    11.6
+                    line = next(std2_file)
+
+                    while (line := next(std2_file)).strip():
+                        last_orbital = int(line.split()[0]) -1
+                    
+                    # Adjust based on where the HOMO really is.
+                    orbital_offset = self.data.homos[0] - last_orbital
+
 
                 if " excitation energies, transition moments and" in line:
                     #  excitation energies, transition moments and TDA amplitudes
@@ -49,8 +87,8 @@ class Std2_parser_mixin():
                             coef = float(raw_config[0][:-1])
 
                             configurations.append([
-                                (startMO, 0),
-                                (endMO, 0),
+                                (startMO + orbital_offset, 0),
+                                (endMO + orbital_offset, 0),
                                 coef
                             ])
                         
