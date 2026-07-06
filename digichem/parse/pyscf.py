@@ -5,13 +5,20 @@ from uuid import uuid4
 from cclib.bridge.cclib2pyscf import cclibfrommethods
 
 from digichem.parse.base import Parser_abc
+from digichem.parse.std2 import Std2_parser_mixin
+import digichem.file.types as file_types
 import digichem.log
 
 
-class Pyscf_parser(Parser_abc):
+class Pyscf_parser(Parser_abc, Std2_parser_mixin):
     """
     Top level class for parsing output from pyscf data.
     """
+
+    # A dictionary of recognised auxiliary file types.
+    INPUT_FILE_TYPES = {
+        file_types.xtb_std2: "std2_file"
+    }
     
     def __init__(self, mol_name, methods, **kwargs):
         self.methods = methods
@@ -23,6 +30,10 @@ class Pyscf_parser(Parser_abc):
         Extract results from our output files.
         """
         self.data = cclibfrommethods(**self.methods)
+
+        # Do manual parsing of excited states.
+        if 'std2_file' in self.auxiliary_files:
+            self.parse_std2_log()
     
     def post_parse(self):
         """
