@@ -660,8 +660,13 @@ class Atom(Atom_ABC):
         self.index = index
         self.mass = mass
         self.coords = coords
+        
         # Get our element class.
-        self.element = periodictable.elements[atomic_number]
+        try:
+            self.element = periodictable.elements[atomic_number]
+        except KeyError:
+            raise Digichem_exception("No element with atomic number {}".format(atomic_number)) from None
+        
         # Atom groups are assigned by Atom_list objects.
         self.group = None
         
