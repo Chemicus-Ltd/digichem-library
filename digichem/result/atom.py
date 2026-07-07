@@ -760,6 +760,9 @@ class Atom(Atom_ABC):
             # No atom data available.
             return []
         
+        if len(atomnos) != len(atomcoords):
+            raise Digichem_exception("Cannot create a list of atoms from {} atomic numbers and {} atomic coordinates".format(len(atomnos), len(atomcoords)))
+        
         # Zip.
         zip_data = zip_longest(atomnos, atomcoords, atommasses, fillvalue = None)
         
