@@ -64,6 +64,13 @@ result_files = {
         'Pyridine/Orca Frequencies PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz',
         'Pyridine/Orca NMR PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz',
         'Pyridine/Orca Excited States TDA 10 Singlets 10 Triplets PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz'
+    ]],
+    "xtb": [Path(data_directory(), datum) for datum in [
+        'Pyridine/xTB Single Point GFN2-xTB Chloroform.tar.gz',
+        'Pyridine/xTB Optimisation GFN2-xTB Gas Phase.tar.gz',
+        'Pyridine/xTB Optimisation Frequencies GFN2-xTB Gas Phase.tar.gz',
+        'Pyridine/xTB Frequencies GFN2-xTB Gas Phase.tar.gz',
+        'Pyridine/xTB Excited States sTDA Singlets & Triplets GFN2-xTB Gas Phase.tar.gz',
     ]]
 }
 

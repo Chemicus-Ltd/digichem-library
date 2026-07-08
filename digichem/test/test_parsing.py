@@ -78,6 +78,10 @@ def test_dump_and_parse(result_files, tmp_path, digichem_options):
     raw_dump['atoms'].pop("alignment_duration")
     parsed_dump['atoms'].pop("alignment_duration")
     
+    # Try and get some decent error reporting out of pytest.
+    for key in raw_dump:
+        assert raw_dump[key] == pytest.approx(parsed_dump[key])
+    
     assert raw_dump == parsed_dump
 
 @pytest.mark.parametrize(
