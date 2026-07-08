@@ -78,7 +78,7 @@ ButylEthanoate,,,4.9941,,
 CarbonDiSulfide,,,2.6105,,CS2
 CarbonTetraChloride,,,2.228,1.466,
 ChloroBenzene,,,5.6968,,
-Chloroform,,,4.7113,1.45,CHCl₃
+Chloroform,,,4.7113,1.45,CHCl3
 "Cis-1,2-DiMethylCycloHexane",,,2.06,,
 Cis-Decalin,,,2.2139,,
 CycloHexane,,,2.0165,1.425,
@@ -90,7 +90,7 @@ Decalin-mixture,,,2.196,,
 DiBromomEthane,,,7.2273,,
 DiButylEther,,,3.0473,,
 DiChloroEthane,,,10.125,,
-DiChloroMethane,DCM,,8.93,1.424,CH₂Cl₂
+DiChloroMethane,DCM,,8.93,1.424,CH2Cl2
 DiEthylAmine,,,3.5766,,
 DiethylEther,,,4.24,,Ether
 DiEthylSulfide,,,5.723,,
