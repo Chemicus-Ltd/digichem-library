@@ -195,7 +195,7 @@ class Dump_parser_abc(File_parser_abc):
         self.results.soc = SOC_list.from_dump(self.data['soc'], self.results, self.options)
         
         # PDM
-        self.results.pdm = Dipole_moment.from_dump(self.data['pdm'], self.results, self.options)
+        self.results.pdm = Dipole_moment.from_dump(self.data['pdm'], self.results, self.options) if self.data['pdm'] is not None else None
         
         # Frequencies.
         self.results.vibrations = Vibrations_list.from_dump(self.data['vibrations'], self.results, self.options)
