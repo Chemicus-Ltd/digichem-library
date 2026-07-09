@@ -87,6 +87,7 @@ xtb_topology = File_type("topo", "xtb", exact = ["xtbtopo.mol"], short_code = "x
 xtb_molden = File_type("molden", "xtb", exact = ["molden.input"], short_code = "molden.input")
 xtb_density = File_type("density", "xtb", exact = ["density.cub"], short_code = "density.cub")
 xtb_std2 = File_type("std2", "xtb", [".std2.log", ".std2.out"])
+xtb_xtb4stda = File_type("xtb4stda", "xtb", [".xtb4stda.log", ".xtb4stda.out"])
 
 
 # A list of all our known types.

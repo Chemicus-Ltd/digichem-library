@@ -1,6 +1,8 @@
 import numpy as np
+import datetime
 
 from digichem.result import Result_object
+import digichem.log
 
 
 class Std2_parser_mixin():
@@ -21,7 +23,23 @@ class Std2_parser_mixin():
             # Some orbitals are missing in the sTD-DFT treatment (probably core e- ?).
             orbital_offset = 0
 
-            for line in std2_file:
+            start_time = None
+
+            for line_no, line in enumerate(std2_file):
+                if line_no == 0:
+                    line = line.strip()
+                    # 2026-7-7 14:31:34. 89
+                    # First line contains our start date/time.
+                    try:
+                        start_time = datetime.datetime.strptime(line[:-4], "%Y-%m-%d %H:%M:%S")
+
+                        # The partial seconds is mangled.
+                        start_time += datetime.timedelta(milliseconds=float(line[-3:]))
+                        print(start_time)
+                    
+                    except Exception:
+                        digichem.log.get_logger().warning("Failed to parse std2 start time", exc_info = True)
+
                 if "triplet" in line:
                     " triplet                       :  T"
                     if line.split()[-1] == "T":
@@ -96,6 +114,24 @@ class Std2_parser_mixin():
                         etoscs.append(oscillator)
                         etsyms.append(symmetry)
                         etsecs.append(configurations)
+            
+            # Last line should contain our stop time.
+            try:
+                line = line.strip()
+                end_time = datetime.datetime.strptime(line[:-4], "%Y-%m-%d %H:%M:%S")
+
+                # The partial seconds is mangled.
+                end_time += datetime.timedelta(milliseconds=float(line[-3:]))
+                print(end_time)
+
+                if start_time:
+                    if 'wall_time' not in self.data.metadata:
+                        self.data.metadata['wall_time'] = []
+                    
+                    self.data.metadata['wall_time'].append(end_time - start_time)
+            
+            except Exception:
+                digichem.log.get_logger().warning("Failed to parse std2 end time", exc_info = True)
             
             # Reorder.
             # First, set energies properly, keeping track of each energy's old index.
