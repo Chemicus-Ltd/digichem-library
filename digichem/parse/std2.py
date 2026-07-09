@@ -35,7 +35,6 @@ class Std2_parser_mixin():
 
                         # The partial seconds is mangled.
                         start_time += datetime.timedelta(milliseconds=float(line[-3:]))
-                        print(start_time)
                     
                     except Exception:
                         digichem.log.get_logger().warning("Failed to parse std2 start time", exc_info = True)
@@ -122,7 +121,6 @@ class Std2_parser_mixin():
 
                 # The partial seconds is mangled.
                 end_time += datetime.timedelta(milliseconds=float(line[-3:]))
-                print(end_time)
 
                 if start_time:
                     if 'wall_time' not in self.data.metadata:
