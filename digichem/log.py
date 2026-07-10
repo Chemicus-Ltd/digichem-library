@@ -97,28 +97,58 @@ def get_logger():
 class Handler(logging.StreamHandler):
     """
     """
-    
+
+
 class Variable_formatter(logging.Formatter):
     """
     The logging formatter used by digichem, the format changes depending on a logger's log_level.
     """
     
     # Different formatters for printing the message.
-    DEFAULT_FORMATTER = '%(levelname)s: %(message)s'
-    WHEN_FORMATTER = '%(asctime)s: %(levelname)s: %(message)s'
+    DEFAULT_FORMATTER = '%(handle)s: %(levelname)s: %(message)s'
+    WHEN_FORMATTER = '%(handle)s: %(asctime)s: %(levelname)s: %(message)s'
     
     # Format string for printing the date/time.
     DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
     
     def __init__(self, logger, show_time = False, *, default_warning_formatter):
         super().__init__(
-            fmt = "digichem: " + (self.WHEN_FORMATTER if show_time else self.DEFAULT_FORMATTER),
+            #fmt = self.WHEN_FORMATTER if show_time else self.DEFAULT_FORMATTER,
             datefmt = '%Y-%m-%d %H:%M:%S',
             style = '%'
         )
         # Save our logger.
+        self.show_time = show_time
         self.logger = logger
         self.default_warning_formatter = default_warning_formatter
+    
+    def formatMessage(self, record):
+        #return logging.PercentStyle(self.WHEN_FORMATTER if self.show_time else self.DEFAULT_FORMATTER).format(record)
+        if record.name in ['digichem.silico', 'py.warnings']:
+            handle = 'digichem'
+        
+        else:
+            handle = record.name.split('.')[-1]
+
+        msg = handle + ": "
+        
+        if self.show_time:
+            msg += record.asctime + ": "
+
+        target_len = 16
+
+        msg += "{: >{}}".format(getattr(record, 'stream_name', record.levelname) + ": ", target_len - len (msg))
+
+        msg += record.getMessage()
+
+        return msg
+
+    
+    # def format(self, record):
+    #     ""
+        
+        
+    #     return super().format(record)
         
     def formatWarning(self, message, category, filename, lineno, line=None):
         """
