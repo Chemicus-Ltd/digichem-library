@@ -105,15 +105,15 @@ class Variable_formatter(logging.Formatter):
     """
     
     # Different formatters for printing the message.
-    DEFAULT_FORMATTER = '%(handle)s: %(levelname)s: %(message)s'
-    WHEN_FORMATTER = '%(handle)s: %(asctime)s: %(levelname)s: %(message)s'
+    DEFAULT_FORMATTER = '%(levelname)s: %(message)s'
+    WHEN_FORMATTER = '%(asctime)s: %(levelname)s: %(message)s'
     
     # Format string for printing the date/time.
     DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
     
     def __init__(self, logger, show_time = False, *, default_warning_formatter):
         super().__init__(
-            #fmt = self.WHEN_FORMATTER if show_time else self.DEFAULT_FORMATTER,
+            fmt = self.WHEN_FORMATTER if show_time else self.DEFAULT_FORMATTER,
             datefmt = '%Y-%m-%d %H:%M:%S',
             style = '%'
         )
@@ -137,18 +137,11 @@ class Variable_formatter(logging.Formatter):
 
         target_len = 16
 
-        msg += "{: >{}}".format(getattr(record, 'stream_name', record.levelname) + ": ", target_len - len (msg))
+        msg += "{: >{}}".format(getattr(record, 'stream_name', record.levelname) + ": ", max(target_len - len(msg), 0))
 
         msg += record.getMessage()
 
         return msg
-
-    
-    # def format(self, record):
-    #     ""
-        
-        
-    #     return super().format(record)
         
     def formatWarning(self, message, category, filename, lineno, line=None):
         """
