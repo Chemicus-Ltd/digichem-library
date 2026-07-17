@@ -56,19 +56,15 @@ def expand_path(pth):
     to the silico data dir).
 
     Extra variables that are expanded:
-    - $SILICO: The digichem data dir (deprecated)
+    - $DIGILIB: The digichem library data dir
     - $DIGICHEM: The digichem data dir
     - $HOSTNAME: The hostname
     
     """
     pth = str(pth)
     
-    new_pth = pth.replace("$SILICO", str(get_resource("data")))
-    if new_pth != pth:
-        warnings.warn("the '$SILICO' magic variable is deprecated, use '$DIGICHEM' instead", DeprecationWarning)
-
-    pth = new_pth
-    pth = pth.replace("$DIGICHEM", str(get_resource("data")))
+    pth = pth.replace("$DIGILIB", str(get_resource("data")))
+    pth = pth.replace("$DIGICHEM", str(get_resource("data", pkg = 'silico')))
     pth = pth.replace("$HOSTNAME", str(socket.gethostname()))
     pth = os.path.expanduser(pth)
     pth = os.path.expandvars(pth)
