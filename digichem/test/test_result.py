@@ -208,7 +208,7 @@ def test_atoms(result_set):
     assert result_set.raw_atoms.element_dict['H'] == 8
     
     # Check mass.
-    assert result_set.raw_atoms.molar_mass == pytest.approx(128.174)
+    assert result_set.raw_atoms.molar_mass == pytest.approx(128.1706)
     
     # We don't check positions here because these can vary from calc to calc due to reorientation...
 

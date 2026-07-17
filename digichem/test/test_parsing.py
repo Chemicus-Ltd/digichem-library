@@ -43,6 +43,10 @@ def test_merged_parsing(data_set, digichem_options):
             Path(data_directory(), "Naphthalene/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p)"),
             Path(data_directory(), "Naphthalene/Gaussian 16 Excited States TDA Optimised S(1) PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz")
         )]
+    ),
+    ids = itertools.chain(
+        [result_file.name for program_files in result_files.values() for result_file in program_files],
+        ["Naphthalene Gaussian Merged"]
     )
 )
 def test_dump_and_parse(result_files, tmp_path, digichem_options):
@@ -80,7 +84,7 @@ def test_dump_and_parse(result_files, tmp_path, digichem_options):
     
     # Try and get some decent error reporting out of pytest.
     for key in raw_dump:
-        assert raw_dump[key] == pytest.approx(parsed_dump[key])
+        assert raw_dump[key] == parsed_dump[key]
     
     assert raw_dump == parsed_dump
 
