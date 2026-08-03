@@ -1,2 +1,0 @@
-This directory contains python scripts used to drive the Beautiful Atoms/Blender renderer.
-This scripts will be executed in a different environment to the pain Digichem python program, and may not be able to import digichem.
