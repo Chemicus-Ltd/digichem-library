@@ -404,7 +404,7 @@ def main():
     # Setup rendering settings.
 #     mol.render.engine = 'workbench'
 #     mol.render.engine = 'eevee'
-    mol.render.engine = 'cycles'
+    mol.render.engine = 'eevee'
     # Set up cycles for good quality rendering.
     # Prevents early end to rendering (forces us to use the actual number of samples).
     bpy.context.scene.cycles.use_adaptive_sampling = False
@@ -422,7 +422,8 @@ def main():
 
     # Change light intensity.
     mol.render.lights["Default"].direction = [0.1, 0.1, 1]
-    mol.render.lights["Default"].obj.data.node_tree.nodes["Emission"].inputs[1].default_value = 0.2
+    #mol.render.lights["Default"].obj.data.node_tree.nodes["Emission"].inputs[1].default_value = 0.2
+    mol.render.lights["Default"].obj.data.energy = 1.5
     mol.render.lights["Default"].obj.data.angle = 0.174533
 
     # Add a second light for depth.
@@ -430,9 +431,11 @@ def main():
     mol.render.lights.add("Accent2", direction = [0.5,1,0.75])
 
     mol.render.lights["Accent1"].obj.data.angle = 0.0872665
-    mol.render.lights["Accent1"].obj.data.node_tree.nodes["Emission"].inputs[1].default_value = 0.25
+    #mol.render.lights["Accent1"].obj.data.node_tree.nodes["Emission"].inputs[1].default_value = 0.25
+    mol.render.lights["Accent1"].obj.data.energy = 0.55
     mol.render.lights["Accent2"].obj.data.angle = 0.0872665
-    mol.render.lights["Accent2"].obj.data.node_tree.nodes["Emission"].inputs[1].default_value = 0.25
+    #mol.render.lights["Accent2"].obj.data.node_tree.nodes["Emission"].inputs[1].default_value = 0.25
+    mol.render.lights["Accent2"].obj.data.energy = 0.55
 
     # bpy.data.lights["batoms_light_Default"].node_tree.nodes["Emission"].inputs[1].default_value = 0.45
     # bpy.data.lights["batoms_light_Default"].angle
