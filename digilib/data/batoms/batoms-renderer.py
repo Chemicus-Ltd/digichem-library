@@ -304,6 +304,7 @@ def main():
     parser.add_argument("--style", help = "Material style for isosurfaces", choices = ('default', 'metallic', 'plastic', 'ceramic', 'mirror'), default = "ceramic")
     parser.add_argument("--cpus", help = "Number of parallel CPUs to use for rendering", type = int, default = 1)
     parser.add_argument("--use-gpu", help = "Whether to enable GPU rendering", action = "store_true")
+    parser.add_argument("--engine", help = "The render engine to use", choices = ("cycles", "eevee", "workbench"), default = "cycles")
     parser.add_argument("--orientation", help = "The orientation to render from, as x, y, z values", nargs = 3, type = float, default = [0, 0, 0])
     parser.add_argument("--resolution", help = "The output resolution in px", type = int, default = 1024)
     parser.add_argument("--render-samples", help = "The maximum number of render samples, more generally results in higher quality but longer render times", type = int, default = 64)# default = 256)
@@ -402,9 +403,8 @@ def main():
         
     
     # Setup rendering settings.
-#     mol.render.engine = 'workbench'
-#     mol.render.engine = 'eevee'
-    mol.render.engine = 'eevee'
+    mol.render.engine = args.engine
+
     # Set up cycles for good quality rendering.
     # Prevents early end to rendering (forces us to use the actual number of samples).
     bpy.context.scene.cycles.use_adaptive_sampling = False
@@ -415,6 +415,9 @@ def main():
     bpy.context.scene.cycles.transparent_max_bounces = 24
     if args.use_gpu:
         bpy.context.scene.cycles.device = "GPU"
+
+    elif args.engine != "cycles":
+        logging.warning("Cannot disable GPU rendering with {}".format(args.engine))
     
     # Use maximum compression.
     bpy.context.scene.render.image_settings.compression = 1000
@@ -422,8 +425,8 @@ def main():
 
     # Change light intensity.
     mol.render.lights["Default"].direction = [0.1, 0.1, 1]
-    #mol.render.lights["Default"].obj.data.node_tree.nodes["Emission"].inputs[1].default_value = 0.2
-    mol.render.lights["Default"].obj.data.energy = 1.5
+    mol.render.lights["Default"].obj.data.node_tree.nodes["Emission"].inputs[1].default_value = 1
+    mol.render.lights["Default"].obj.data.energy = 1
     mol.render.lights["Default"].obj.data.angle = 0.174533
 
     # Add a second light for depth.
@@ -431,11 +434,11 @@ def main():
     mol.render.lights.add("Accent2", direction = [0.5,1,0.75])
 
     mol.render.lights["Accent1"].obj.data.angle = 0.0872665
-    #mol.render.lights["Accent1"].obj.data.node_tree.nodes["Emission"].inputs[1].default_value = 0.25
-    mol.render.lights["Accent1"].obj.data.energy = 0.55
+    mol.render.lights["Accent1"].obj.data.node_tree.nodes["Emission"].inputs[1].default_value = 1
+    mol.render.lights["Accent1"].obj.data.energy = 1.25
     mol.render.lights["Accent2"].obj.data.angle = 0.0872665
-    #mol.render.lights["Accent2"].obj.data.node_tree.nodes["Emission"].inputs[1].default_value = 0.25
-    mol.render.lights["Accent2"].obj.data.energy = 0.55
+    mol.render.lights["Accent2"].obj.data.node_tree.nodes["Emission"].inputs[1].default_value = 1
+    mol.render.lights["Accent2"].obj.data.energy = 1.25
 
     # bpy.data.lights["batoms_light_Default"].node_tree.nodes["Emission"].inputs[1].default_value = 0.45
     # bpy.data.lights["batoms_light_Default"].angle
@@ -485,6 +488,7 @@ def main():
         mol.render.resolution = [resolution, resolution]
         # Quality control, more = better and slower.
         bpy.context.scene.cycles.samples = int(samples)
+        bpy.context.scene.eevee.taa_render_samples = int(samples)
         mol.obj.delta_rotation_euler = orientation
         
         if mol2 is not None:
@@ -503,5 +507,5 @@ if __name__ == '__main__':
         sys.exit(main())
     
     except Exception as e:
-        logging.error("Erro", exc_info = True)
+        logging.error("Error", exc_info = True)
         sys.exit(1)

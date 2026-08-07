@@ -146,6 +146,7 @@ class Batoms_renderer(Render_maker):
             also_make_png = True,
             isovalue = 0.02,
             blender_executable = None,
+            blender_engine = "cycles",
             cpus = 1,
             num_cpu = 1,
             perspective = "perspective",
@@ -164,6 +165,7 @@ class Batoms_renderer(Render_maker):
         :param also_make_png: If True, additional images will be rendered in PNG format. This option is useful to generate higher quality images alongside more portable formats.
         :param isovalue: The isovalue to use for rendering isosurfaces. Has no effect when rendering only atoms.
         :param blender_executable: Bath to the blender executable (can be None to use a default).
+        :param blender_engine: The rendering engine to use.
         :param cpus: DEPREACTED: Number of parallel threads to render with (use num_cpu instead)
         :param num_cpu: Number of parallel threads to render with.
         :param perspective: Perspective mode (orthographic or perspective)
@@ -200,6 +202,8 @@ class Batoms_renderer(Render_maker):
         else:
             # Otherwise, use a default location.
             self.blender_executable = get_resource('data/batoms/blender/blender')
+
+        self.blender_engine = blender_engine
             
     @classmethod
     def from_options(self, output, *, cube_file = None, rotations = None, cpus = None, num_cpu = 1, options, **kwargs):
@@ -218,6 +222,7 @@ class Batoms_renderer(Render_maker):
             use_existing = options['render']['use_existing'],
             dont_modify = not options['render']['enable_rendering'],
             blender_executable = options['render']['batoms']['blender'],
+            blender_engine = options['render']['batoms']['engine'],
             # Deprecated...
             cpus = cpus if cpus is not None else options['render']['batoms']['cpus'],
             num_cpu = num_cpu,
@@ -248,6 +253,7 @@ class Batoms_renderer(Render_maker):
             # "--render-samples", f"{samples}",
             "--perspective", f"{self.perspective}",
             "--padding", f"{padding}",
+            "--engine", f"{self.blender_engine}"
         ]
         for orientation, resolution, samples, mini_file_name in targets:
             args.extend([

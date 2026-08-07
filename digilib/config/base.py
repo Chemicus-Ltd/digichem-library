@@ -81,7 +81,8 @@ Possible options are:
             cpus = Option(help = "The number of CPUs/threads to use. This option is overridden if running in a calculation environment (where it uses the same number of CPUs as the calculation did)", type = int, default = 1),
             render_samples = Option(help = "The number of render samples (or passes) to use. Higher values result in higher image quality and greater render times", type = int, default = 32),
             perspective = Option(help = "The perspective mode", choices = ["orthographic", "perspective"], default = "perspective"),
-            stacking = Option(help = "The number of image copies to composite together to avoid transparency artifacts", type = int, default = 10)
+            stacking = Option(help = "The number of image copies to composite together to avoid transparency artifacts", type = int, default = 10),
+            engine = Option(help = "The blender rendering engine to use", choices = ["cycles", "eevee", "workbench"], default = "cycles")
             # TODO: Colour options.
         ),
         safe_cubes = Option(help = "Whether to sanitize cubes so older software can parse them (VMD < 1.9.2 etc)", type = bool, default = False),
