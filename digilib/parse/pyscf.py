@@ -34,6 +34,13 @@ class Pyscf_parser(Parser_abc, Std2_parser_mixin):
         # Do manual parsing of excited states.
         if 'std2_file' in self.auxiliary_files:
             self.parse_std2_log()
+
+        # CClib doesn't give us timing info for pyscf, but we do get it from std2
+        # this is confusing, because it makes the overall calculation appear much quicker
+        # that it was in reality, remove
+        if "wall_time" in self.data.metadata:
+            del self.data.metadata['wall_time']
+            # If we are run with digichem, full timing info is available in metadata_defaults
     
     def post_parse(self):
         """
