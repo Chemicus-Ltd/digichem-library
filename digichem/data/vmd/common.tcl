@@ -8,7 +8,7 @@ proc reset_rotation {rotations} {
     rotate x to 0
 
     # rotations is a string, we want a list to iterate through.
-    set rot_list [split "$rotations" " "]
+    set rot_list [split "$rotations" ":"]
 
     # Iterate through.
     foreach rotation_str $rot_list {
@@ -19,9 +19,9 @@ proc reset_rotation {rotations} {
 
         # What we rotate depends on our axes.
         if {$axis == 0} {
-            rotate x by [expr -$angle]
+            rotate x by $angle
         } elseif {$axis == 1} {
-            rotate y by $angle
+            rotate y by [expr -$angle]
         } elseif {$axis == 2} {
             rotate z by $angle
         } else {
@@ -53,9 +53,9 @@ proc rotate_molecule {molecule translations rotations} {
 
         # What we rotate depends on our axes.
         if {$axis == 0} {
-            $sel move [transaxis x [expr -$angle]]
+            $sel move [transaxis x $angle]
         } elseif {$axis == 1} {
-            $sel move [transaxis y $angle]
+            $sel move [transaxis y [expr -$angle]]
         } elseif {$axis == 2} {
             $sel move [transaxis z $angle]
         } else {
@@ -102,7 +102,7 @@ proc reset_center {selection} {
     $selection moveby {-[lindex center_coords 0] -[lindex center_coords 1] -[lindex center_coords 2]}
 }
 
-# Render the current scene. Rotations is our alignemnt rotations string. The four arguments are filenames to render each of the 4 angles to.
+# Render the current scene. Rotations is our alignment rotations string. The four arguments are filenames to render each of the 4 angles to.
 proc render_images {rotations x0y0z0 x90y0z0 x0y90z0 x45y45z45} {
 
     reset_rotation $rotations
@@ -111,7 +111,7 @@ proc render_images {rotations x0y0z0 x90y0z0 x0y90z0 x45y45z45} {
 
     reset_rotation $rotations
     #rotate x to 0
-    rotate x by 90
+    rotate x by -90
     render Tachyon $x90y0z0
 
     reset_rotation $rotations

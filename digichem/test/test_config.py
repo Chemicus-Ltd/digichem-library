@@ -50,7 +50,7 @@ def test_del_option(digichem_options):
 
     # Delete and check.
     del options.alignment
-    assert options.alignment == "MIN"
+    assert options.alignment == "NEST"
 
 def test_config_merge():
     """Can we set additional options from a string?"""

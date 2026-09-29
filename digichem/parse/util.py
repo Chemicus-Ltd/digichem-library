@@ -177,7 +177,7 @@ def from_log_files(*log_files, format_hint = "auto", parser_options = {}, **auxi
         else:
             raise
     
-def parse_calculation(*log_files, options, parse_all = False, format_hint = "auto", keep_archive = False, parser_options = {}, **auxiliary_files):
+def parse_calculation(*log_files, options, ornt = None, ornt_args = (), parse_all = False, format_hint = "auto", keep_archive = False, parser_options = {}, **auxiliary_files):
     """
     Parse a single calculation result.
     
@@ -227,10 +227,10 @@ def parse_calculation(*log_files, options, parse_all = False, format_hint = "aut
         open_log_files, open_aux_files = archive.open()
         
         if parse_all:
-            results = from_log_files(*open_log_files, format_hint = format_hint, parser_options = parser_options, options = options, **open_aux_files).process_all()
+            results = from_log_files(*open_log_files, format_hint = format_hint, parser_options = parser_options, options = options, ornt = ornt, ornt_args = ornt_args, **open_aux_files).process_all()
         
         else:       
-            results = from_log_files(*open_log_files, format_hint = format_hint, parser_options = parser_options, options = options, **open_aux_files).process()
+            results = from_log_files(*open_log_files, format_hint = format_hint, parser_options = parser_options, options = options, ornt = ornt, ornt_args = ornt_args, **open_aux_files).process()
         
     finally:
         if not keep_archive:
@@ -244,8 +244,7 @@ def parse_calculation(*log_files, options, parse_all = False, format_hint = "aut
         # The caller isn't interested in the archive.
         return results
 
-
-def multi_parser(log_files, auxiliary_files, *, options, format_hint = "auto", keep_archive = False, parser_options = {},):
+def multi_parser(log_files, auxiliary_files, *, options, ornt = None, ornt_args = (), format_hint = "auto", keep_archive = False, parser_options = {},):
         """
         The inner function which will be called in parallel to parse files.
         """
@@ -266,13 +265,13 @@ def multi_parser(log_files, auxiliary_files, *, options, format_hint = "auto", k
             logs = (log_files,)
         
         try:    
-            return parse_calculation(*logs, options = options, parse_all = True, format_hint = format_hint, keep_archive = keep_archive, parser_options = parser_options, **auxiliary_files)
+            return parse_calculation(*logs, options = options, ornt = ornt, ornt_args = ornt_args, parse_all = True, format_hint = format_hint, keep_archive = keep_archive, parser_options = parser_options, **auxiliary_files)
             
         except Exception:
             digichem.log.get_logger().warning("Unable to parse calculation result file '{}'; skipping".format(logs[0] if len(logs) == 1 else logs), exc_info = True)
             return None
 
-def parse_multiple_calculations(*log_files, auxiliary_files = None, options, parser_options = {}, pool = None, init_func = None, init_args = None, format_hint = "auto", processes = 1, keep_archive = False):
+def parse_multiple_calculations(*log_files, auxiliary_files = None, options, ornt = None, ornt_args = (), parser_options = {}, pool = None, init_func = None, init_args = None, format_hint = "auto", processes = 1, keep_archive = False):
     """
     Parse a number of separate calculation results in parallel.
     
@@ -306,7 +305,7 @@ def parse_multiple_calculations(*log_files, auxiliary_files = None, options, par
     try:
         result_lists = list(
             filterfalse(lambda x: x is None,
-                pool.starmap(partial(multi_parser, options = options, format_hint = format_hint, keep_archive = keep_archive, parser_options = parser_options), zip_longest(log_files, auxiliary_files, fillvalue = {}))
+                pool.starmap(partial(multi_parser, options = options, ornt = ornt, ornt_args = ornt_args, format_hint = format_hint, keep_archive = keep_archive, parser_options = parser_options), zip_longest(log_files, auxiliary_files, fillvalue = {}))
                 #pool.map(partial(multi_parser, options = options, format_hint = format_hint, keep_archive = keep_archive), *transpose(list(zip_longest(log_files, auxiliary_files, fillvalue = {})), 2))
             )
         )
@@ -322,7 +321,7 @@ def parse_multiple_calculations(*log_files, auxiliary_files = None, options, par
         if own_pool:
             pool.__exit__(None, None, None)
     
-def parse_and_merge_calculations(*log_files, auxiliary_files = None, options, parser_options = {}, format_hint = "auto", inner_pool = None, keep_archive = False):
+def parse_and_merge_calculations(*log_files, auxiliary_files = None, options, ornt = None, ornt_args = (), parser_options = {}, format_hint = "auto", inner_pool = None, keep_archive = False):
     """
     Get a single result object by parsing a number of computational log files.
     
@@ -338,8 +337,8 @@ def parse_and_merge_calculations(*log_files, auxiliary_files = None, options, pa
     :param format_hint: A hint as to the format of the given log files. Either 'auto' (to guess), 'log' (calc log file), 'sir' (digichem result file) or 'sid' (digichem database file).
     :param auxiliary_files: A list of dictionaries of auxiliary files. The ordering of auxiliary_files should match that of log_files.
     :return: A single Result_set object (or child thereof).
-    """    
-    parsed_results = parse_multiple_calculations(*log_files, options = options, parser_options = parser_options, format_hint = format_hint, pool = inner_pool, auxiliary_files = auxiliary_files, keep_archive = keep_archive)
+    """
+    parsed_results = parse_multiple_calculations(*log_files, options = options, ornt = ornt, ornt_args = ornt_args, parser_options = parser_options, format_hint = format_hint, pool = inner_pool, auxiliary_files = auxiliary_files, keep_archive = keep_archive)
     
     # If we asked for archives as well, unpack.
     if keep_archive:
@@ -347,7 +346,7 @@ def parse_and_merge_calculations(*log_files, auxiliary_files = None, options, pa
     
     # If we have more than one result, merge them together.
     if len(parsed_results) > 1:
-        parsed_results = Merged.from_results(*parsed_results, options = options)
+        parsed_results = Merged.from_results(*parsed_results, options = options, ornt = ornt, ornt_args = ornt_args)
     
     elif len(parsed_results) == 0:
         parsed_results = None
@@ -361,18 +360,18 @@ def parse_and_merge_calculations(*log_files, auxiliary_files = None, options, pa
     else:
         return parsed_results
             
-def multi_merger_parser(log_files, auxiliary_files, *, options, parser_options = {}, format_hint = "auto" , inner_pool = None, keep_archive = False):
+def multi_merger_parser(log_files, auxiliary_files, *, options, ornt = None, ornt_args = (), parser_options = {}, format_hint = "auto" , inner_pool = None, keep_archive = False):
         """
         The inner function which will be called in parallel to parse files.
         """
         try:
-            return parse_and_merge_calculations(*log_files, options = options, parser_options = parser_options, format_hint = format_hint, inner_pool = inner_pool, auxiliary_files = auxiliary_files, keep_archive = keep_archive)
+            return parse_and_merge_calculations(*log_files, options = options, ornt = ornt, ornt_args = ornt_args, parser_options = parser_options, format_hint = format_hint, inner_pool = inner_pool, auxiliary_files = auxiliary_files, keep_archive = keep_archive)
             
         except Exception:
             digichem.log.get_logger().warning("Unable to parse and merge calculation results '{}'; skipping".format(", ".join([str(log_file) for log_file in log_files])), exc_info = True)
             return None
 
-def parse_and_merge_multiple_calculations(*multiple_results, options, parser_options = {}, format_hint = "auto", init_func = None, init_args = None, processes = None, auxiliary_files = None, keep_archive = False):
+def parse_and_merge_multiple_calculations(*multiple_results, options, ornt = None, ornt_args = (), parser_options = {}, format_hint = "auto", init_func = None, init_args = None, processes = None, auxiliary_files = None, keep_archive = False):
     """
     Parse a number of separate calculation results in parallel, merging some or all of the results into combined result sets.
     
@@ -395,7 +394,7 @@ def parse_and_merge_multiple_calculations(*multiple_results, options, parser_opt
         
         result_lists = list(
             filterfalse(lambda x: x is None,
-                map(partial(multi_merger_parser, options = options, parser_options = parser_options, format_hint = format_hint, inner_pool = pool, keep_archive = keep_archive), multiple_results, auxiliary_files)
+                map(partial(multi_merger_parser, options = options, ornt = ornt, ornt_args = ornt_args, parser_options = parser_options, format_hint = format_hint, inner_pool = pool, keep_archive = keep_archive), multiple_results, auxiliary_files)
             )
         )
         

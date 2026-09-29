@@ -35,7 +35,7 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
-test = ["pytest", "pytest-lazy-fixture", "pyscf"]
+test = ["pytest", "pytest-lazy-fixture", "pyscf", "bayesian-optimization"]
 
 [project.urls]
 Homepage = "https://github.com/Digichem-Project/digichem-core"

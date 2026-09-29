@@ -158,7 +158,23 @@ class Dipole_moment_ABC(Result_object):
         
         :param cgs: Whether to find the angle in Gaussian-cgs units or standard units (the direction of magnetic dipole moments is reversed in the former).
         """
-        return Angle(math.acos(self.cos_angle(other, cgs)))
+        cos_angle = self.cos_angle(other, cgs)
+        try:
+            angle = math.acos(cos_angle)
+        
+        except ValueError:
+            # Rounding errors can result in slightly exceeding the bounds of acos.
+            # TODO: define what 'slightly' means.
+            if cos_angle > 1:
+                angle = 0
+
+            elif cos_angle < -1:
+                 angle = math.pi
+                
+            else:
+                raise
+
+        return Angle(angle)
         
     def cos_angle(self, other, cgs = True):
         """

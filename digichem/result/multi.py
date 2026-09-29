@@ -29,7 +29,7 @@ class Merged(Result_set):
         self.emission.adiabatic = adiabatic_emission if adiabatic_emission is not None else {}
             
     @classmethod
-    def from_results(self, *results, options):
+    def from_results(self, *results, options, ornt = None, ornt_args = ()):
         """
         Create a Merged result set object from a number of result sets.
         
@@ -43,8 +43,12 @@ class Merged(Result_set):
         # 'Merge' our atoms.
         raw_atoms = Atom_list.merge(*[result.raw_atoms for result in results], charge = merged_metadata.charge)
         # And alignment.
-        alignment_class = Alignment.from_class_handle(options['alignment']) if options['alignment'] is not None else Minimal
-        atoms = alignment_class(raw_atoms, charge = merged_metadata.charge)
+        # TODO: Check this is necessary, are the atoms not already aligned?
+        if ornt is not None:
+            alignment_class = Alignment.from_class_handle(ornt)
+        else:
+            alignment_class = Alignment.from_class_handle(options['alignment']) if options['alignment'] is not None else Minimal
+        atoms = alignment_class(raw_atoms, *ornt_args, charge = merged_metadata.charge)
         
         # Use special method for merging orbitals.
         orbitals, beta_orbitals = Molecular_orbital_list.merge_orbitals([result.orbitals for result in results], [result.beta_orbitals for result in results])

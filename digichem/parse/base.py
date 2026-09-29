@@ -37,7 +37,7 @@ custom_parsing_formats = [
 class Parser_abc():
     """ABC for all parsers."""
 
-    def __init__(self, *, raw_data = None, options, metadata_defaults = None, profile_file = None, **kwargs):
+    def __init__(self, *, raw_data = None, options, ornt = None, ornt_args = (), metadata_defaults = None, profile_file = None, **kwargs):
         """
         Top level constructor for calculation parsers.
         """
@@ -49,6 +49,10 @@ class Parser_abc():
 
         # Config options.
         self.options = options
+
+        # The alignment method (if given explicitly).
+        self.ornt = ornt
+        self.ornt_args = ornt_args
 
         # Manually provided overrides.
         self.metadata_defaults = metadata_defaults if metadata_defaults is not None else {}
@@ -258,7 +262,11 @@ class Parser_abc():
             aux = self.data._aux if hasattr(self.data, '_aux') else None
             )
         
-        alignment_class = Alignment.from_class_handle(self.options['alignment']) if self.options['alignment'] is not None else Minimal
+        if self.ornt is not None:
+            alignment_class = Alignment.from_class_handle(self.ornt)
+
+        else:
+            alignment_class = Alignment.from_class_handle(self.options['alignment']) if self.options['alignment'] is not None else Minimal
         
         # First get our list of MOs (because we need them for excited states too.)
         self.results.orbitals = Molecular_orbital_list.from_parser(self)
@@ -268,7 +276,7 @@ class Parser_abc():
         self.results.orbitals.assign_total_level(self.results.beta_orbitals)
         
         # Our alignment orientation data.
-        self.results.atoms = alignment_class.from_parser(self)
+        self.results.atoms = alignment_class.from_parser(self, *(self.ornt_args if self.ornt else ()))
         self.results.raw_atoms = Atom_list.from_parser(self)
         
         # TEDM and TMDM.

@@ -263,7 +263,8 @@ class Batoms_renderer(Render_maker):
 
             # Add rotations.
             for rotation in self.rotations:
-                args.append(json.dumps(rotation))
+                reverse = (1,)
+                args.append(json.dumps(rotation if rotation[0] not in reverse else (rotation[0], -rotation[1])))
         
         return args
     
@@ -329,7 +330,7 @@ class Batoms_renderer(Render_maker):
                 self.file_path['x0y0z0'].with_suffix(".tmp.png")
             ],
             "x90y0z0": [
-                (1.5708, 0, 0),
+                (-1.5708, 0, 0),
                 self.test_resolution if self.auto_crop else self.target_resolution,
                 self.test_samples if self.auto_crop else self.render_samples,
                 self.file_path['x90y0z0'].with_suffix(".tmp.png")

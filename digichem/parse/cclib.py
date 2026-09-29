@@ -18,7 +18,7 @@ class Cclib_parser(File_parser_abc):
     # A dictionary of recognised auxiliary file types.
     INPUT_FILE_TYPES = {}
     
-    def __init__(self, *log_files, options, metadata_defaults = None, **auxiliary_files):
+    def __init__(self, *log_files, options, ornt = None, ornt_args = (), metadata_defaults = None, **auxiliary_files):
         """
         Top level constructor for calculation parsers.
         
@@ -28,7 +28,7 @@ class Cclib_parser(File_parser_abc):
         # Also save our aux files, stripping None.
         self.auxiliary_files = {name: aux_file for name,aux_file in auxiliary_files.items() if aux_file is not None}
         
-        super().__init__(*log_files, options = options, metadata_defaults = metadata_defaults, profile_file = Path(log_files[0].parent, "../Logs/profile.csv"))
+        super().__init__(*log_files, options = options, ornt = ornt, ornt_args = ornt_args, metadata_defaults = metadata_defaults, profile_file = Path(log_files[0].parent, "../Logs/profile.csv"))
         
     @classmethod
     def from_logs(self, *log_files, hints = None, options, **kwargs):

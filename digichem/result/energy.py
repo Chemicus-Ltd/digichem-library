@@ -69,9 +69,15 @@ class Energies(Result_object):
         """
         Get a representation of this result object in primitive format.
         """
+        try:
+            final = float(self.final)
+        
+        except Result_unavailable_error:
+            final = None
+        
         dump = {
             "final": {
-                "value": float(self.final),
+                "value": final,
                 "units": "eV"
             },
             "scf": self.scf.dump(digichem_options, all),

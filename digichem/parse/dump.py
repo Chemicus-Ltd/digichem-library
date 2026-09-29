@@ -25,19 +25,19 @@ class Dump_multi_parser_abc(File_parser_abc):
     ABC for classes that can read multiple result sets from dumped data.
     """
     
-    def __init__(self, input_file, *other_log_files, raw_data = None, options , **auxiliary_files):
+    def __init__(self, input_file, *other_log_files, raw_data = None, options, ornt = None, ornt_args = (), **auxiliary_files):
         """
         Top level constructor for calculation parsers.
         
         :param input_file: The path to read from.
         """
         # Neither other_log_files nor auxiliary_files are currently used...
-        super().__init__(input_file, raw_data = raw_data, options = options)
+        super().__init__(input_file, raw_data = raw_data, options = options, ornt = ornt, ornt_args = ornt_args)
         self.all_results = []
         
     @classmethod
-    def from_data(self, input_file, data, options):
-        return self(input_file, raw_data = data, options = options)
+    def from_data(self, input_file, data, options, ornt = None, ornt_args = ()):
+        return self(input_file, raw_data = data, options = options, ornt = ornt, ornt_args = ornt_args)
             
     @property
     def results(self):
@@ -70,7 +70,7 @@ class Dump_multi_parser_abc(File_parser_abc):
         :return: A list of the populated result sets.
         """
         # Unlike most other parsers, our data can actually contain lots of results.
-        self.all_results = [self.get_sub_parser()(self.log_file_path, raw_data = data, options = self.options).process() for data in self.data]
+        self.all_results = [self.get_sub_parser()(self.log_file_path, raw_data = data, options = self.options, ornt = self.ornt, ornt_args = self.ornt_args).process() for data in self.data]
         
         return self.all_results
     
@@ -125,18 +125,18 @@ class Dump_parser_abc(File_parser_abc):
     ABC for parsers that read dumped data.
     """
     
-    def __init__(self, input_file, *other_log_files, raw_data = None, options, **auxiliary_files):
+    def __init__(self, input_file, *other_log_files, raw_data = None, options, ornt = None, ornt_args = (), **auxiliary_files):
         """
         Top level constructor for calculation parsers.
         
         :param input_file: The path to the input file to read.
         """
         # Neither other_log_files nor auxiliary_files are currently used...
-        super().__init__(input_file, raw_data = raw_data, options = options)
+        super().__init__(input_file, raw_data = raw_data, options = options, ornt = ornt, ornt_args = ornt_args)
         
     @classmethod
-    def from_data(self, input_file, data, options):
-        return self(input_file, raw_data = data, options = options)
+    def from_data(self, input_file, data, options, ornt = None, ornt_args = ()):
+        return self(input_file, raw_data = data, options = options, ornt = ornt, ornt_args = ornt_args)
     
     def process_all(self):
         """
@@ -164,11 +164,14 @@ class Dump_parser_abc(File_parser_abc):
         self.results.orbitals = Molecular_orbital_list.from_dump(self.data['orbitals'], self.results, self.options)
         self.results.beta_orbitals = Molecular_orbital_list.from_dump(self.data['beta_orbitals'], self.results, self.options)
         
-        alignment_class = Alignment.from_class_handle(self.options['alignment']) if self.options['alignment'] is not None else Minimal
+        if self.ornt is not None:
+            alignment_class = Alignment.from_class_handle(self.ornt)
+        else:
+            alignment_class = Alignment.from_class_handle(self.options['alignment']) if self.options['alignment'] is not None else Minimal
         
         # Our alignment orientation data.
         # The constructor for each alignment class automatically performs realignment.
-        self.results.atoms = alignment_class.from_dump(self.data['atoms'], self.results, self.options)
+        self.results.atoms = alignment_class.from_dump(self.data['atoms'], self.results, self.options, *(self.ornt_args if self.ornt is not None else ()))
         self.results.raw_atoms = Atom_list.from_dump(self.data['raw_atoms'], self.results, self.options)
         
         # TEDM and TMDM.

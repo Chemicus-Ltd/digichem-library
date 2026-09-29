@@ -73,7 +73,10 @@ def test_dump_and_parse(result_files, tmp_path, digichem_options):
     raw_dump['metadata'].pop("log_files")
     parsed_dump['metadata'].pop("auxiliary_files")
     parsed_dump['metadata'].pop("log_files")
-    
+
+    # Molecular timings will naturally differ, so remove these.
+    raw_dump['atoms'].pop("alignment_duration")
+    parsed_dump['atoms'].pop("alignment_duration")
     
     assert raw_dump == parsed_dump
 

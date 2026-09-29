@@ -1,4 +1,6 @@
 import math
+from timeit import default_timer as timer
+import datetime
 
 from configurables.parent import Dynamic_parent
 
@@ -24,10 +26,13 @@ class Alignment(Atom_list, Dynamic_parent):
         self.translations = (0, 0, 0)
         # The rotations in radians applied to all atoms. This is a list of tuples, of the form (axis, angle), where axis is 0 = X, 1 = Y, 2 = Z.
         self.rotations = []
-        
         # And transform (if we have some atoms).
+        self.duration = None
         if len(self) > 0:
+            start_timer = timer()
             self.align_axes()
+            end_timer = timer()
+            self.duration = datetime.timedelta(seconds = end_timer - start_timer)
             
         #self.debug_print()
         #exit()
@@ -131,7 +136,8 @@ class Alignment(Atom_list, Dynamic_parent):
             return 2
         else:
             raise ValueError("Axis '{}' is out of bounds. Possible  values are 0 (X), 1 (Y) or 2 (Z)")
-        
+
+    @classmethod 
     def rotate_coords(self, coords, axis, theta):
         """
         Rotate a set of coordinates around an axis.
@@ -198,7 +204,7 @@ class Alignment(Atom_list, Dynamic_parent):
         Determine the angle needed (theta) to rotate a point.
         
         This function does atan(opposite / adjacent), watching out for div by 0.
-        :param opposite: the coordinate of the point along the axis opposite to the angle to calculate.. After rotation, the point will have this coord == 0.
+        :param opposite: the coordinate of the point along the axis opposite to the angle to calculate. After rotation, the point will have this coord == 0.
         :param adjacent: The coordinate of the point along the axis adjacent to the angle to calculate. After rotation, the point will be on this axis.
         :return: The angle (in radians).
         """
@@ -246,6 +252,10 @@ class Alignment(Atom_list, Dynamic_parent):
         """
         dump_dict = super()._dump_(digichem_options, all)
         dump_dict['alignment_method'] = self.human_method_type
+        dump_dict['alignment_duration'] = {
+            "value": self.duration.total_seconds(),
+            "units": "s"
+        }
         return dump_dict
     
     
@@ -281,13 +291,14 @@ class Axis_swapper_mix():
         if self.X_length < self.Y_length and self.Y_length > self.Z_length:
             # Swap X and Y.
             self.rotate_XY(-math.pi/2)
+
         elif self.X_length < self.Z_length:
             # Swap X and Z.
             self.rotate_XZ(-math.pi/2)
             
         if self.Y_length < self.Z_length:
             # Swap. Y and Z.
-            self.rotate_YZ(-math.pi/2)
+            self.rotate_YZ(math.pi/2)
 
             
 class Minimal(Alignment, Axis_swapper_mix):
@@ -306,5 +317,16 @@ class Minimal(Alignment, Axis_swapper_mix):
         self.reassign_axes()
         
     
-    
-    
+class Fixed(Alignment):
+    """
+    An alignment method that does nothing at all.
+    """
+
+    # Names that uniquely describe this alignment protocol.
+    CLASS_HANDLE = ["Fixed", "FIX"]
+
+    def align_axes(self):
+        """
+        The 'main' method of this alignment class; executes the necessary transformations to align the given atoms.
+        """
+        pass

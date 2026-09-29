@@ -434,7 +434,7 @@ class Atom_list(Result_container, Unmergeable_container_mixin, Molecule_mixin):
         return self.get_theta(secondary_axis, primary_axis)
     
     @classmethod
-    def from_parser(self, parser):
+    def from_parser(self, parser, *args):
         """
         Get an Atom_list object from an output file parser.
         
@@ -442,17 +442,17 @@ class Atom_list(Result_container, Unmergeable_container_mixin, Molecule_mixin):
         :param charge: Charge of the system.
         :return: A list of TDM objects.
         """
-        return self(Atom.list_from_parser(parser), charge = parser.results.metadata.charge)
+        return self(Atom.list_from_parser(parser), *args, charge = parser.results.metadata.charge)
     
     @classmethod
-    def from_dump(self, data, result_set, options):
+    def from_dump(self, data, result_set, options, *args):
         """
         Get an instance of this class from its dumped representation.
         
         :param data: The data to parse.
         :param result_set: The partially constructed result set which is being populated.
         """
-        return self(Atom.list_from_dump(data['values'], result_set, options), charge = data['charge'])
+        return self(Atom.list_from_dump(data['values'], result_set, options), *args,  charge = data['charge'])
     
     @classmethod
     def from_coords(self, coords):

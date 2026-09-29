@@ -14,7 +14,7 @@ def data_directory():
     return get_resource('test/data')
 
 
-# Input files.
+# Normal input files.
 benzene_cdx = Path(data_directory(), "Input", "Benzene.cdx")
 pyridine_cml = Path(data_directory(), "Input", "Pyridine.cml")
 cyclopentane_com = Path(data_directory(), "Input", "Cyclopentane.com")
@@ -24,6 +24,23 @@ ethane_xyz = Path(data_directory(), "Input", "Ethane.xyz")
 pyridine_si_v2 = Path(data_directory(), "Input/Pyridine.v2.si")
 pyridine_si_v1 = Path(data_directory(), "Input/Pyridine.v1.si")
 pyridinium_si = Path(data_directory(), "Input/Pyridinium.si")
+
+# Molecules with deliberately ambiguous bond information.
+# Benzene (C6H6) but all bonds are single (often the case when drawn directly in 3D).
+c6h6_cml = Path(data_directory(), "Input/C6H6.cml")
+# Benzene with aromatic bonds and no Hydrogens (C6)
+benzene_implicit_cml = Path(data_directory(), "Input", "Benzene_implicit.cml")
+# Benzene with aromatic bonds and Hydrogens (C6H6)
+benzene_explicit_cml = Path(data_directory(), "Input", "Benzene_explicit.cml")
+# Cyclohexane with all single bonds and no Hydrogens (C6)
+cyclohexane_implicit_cml = Path(data_directory(), "Input", "Cyclohexane_implicit.cml")
+# Cyclohexane with all single bonds and Hydrogens (C6H12)
+cyclohexane_explicit_cml = Path(data_directory(), "Input", "Cyclohexane_explicit.cml")
+
+benzene_implicit_cdx = Path(data_directory(), "Input", "Benzene_implicit.cdx")
+benzene_explicit_cdx = Path(data_directory(), "Input", "Benzene_explicit.cdx")
+acetone_BH3_implicit_cml = Path(data_directory(), "Input", "Acetone_BH3_implicit.cml")
+acetone_BH3_explicit_cml = Path(data_directory(), "Input", "Acetone_BH3_explicit.cml")
 
 
 # Result files for testing parsing.
@@ -69,6 +86,7 @@ def digichem_options(tmpdir_factory):
     config.logging['render_logging'] = True
     # Set blender quality as low as feasible to shorten test time.
     config.render['batoms']['render_samples'] = 1
+    config.alignment = "MIN"
     config.validate()
     return config
 
