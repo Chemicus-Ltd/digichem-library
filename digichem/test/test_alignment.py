@@ -28,3 +28,16 @@ def test_alignment_method(method, x, y, z, digichem_options):
     assert result.atoms.X_length == pytest.approx(x, rel=1e-5)
     assert result.atoms.Y_length == pytest.approx(y, rel=1e-5)
     assert result.atoms.Z_length == pytest.approx(z, rel=1e-5)
+
+
+def test_fixed_alignment(digichem_options):
+    result = parse_calculation(Path(data_directory(), "Naphthalene/Gaussian 16 Single Point (Singlet) PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz"), options = digichem_options, ornt = 'FIX')
+
+    # Uniquely, our axes are not in the correct order.
+    assert result.atoms.Y_length >= result.atoms.Z_length
+    assert result.atoms.Z_length >= result.atoms.X_length
+
+    # Check we have the roughly expected value
+    assert result.atoms.X_length == pytest.approx(0.0, rel=1e-5)
+    assert result.atoms.Y_length == pytest.approx(6.7394, rel=1e-5)
+    assert result.atoms.Z_length == pytest.approx(4.9724, rel=1e-5)
