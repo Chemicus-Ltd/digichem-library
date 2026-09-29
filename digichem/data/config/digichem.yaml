@@ -74,9 +74,9 @@
 #   type: wrapper_type, default: True, required: False
 #  plot_cumulative_peak: true
 #    
-# The default alignment method to use, MIN: minimal, FAP: furthest atom pair, AA: average angle, 
+# The default alignment method to use, FIX: fixed, MIN: minimal, FAP: furthest atom pair, AA: average angle, 
 # AAA: advanced average angle.
-# default: MIN, choices: ['MIN', 'FAP', 'AA', 'AAA'], required: False
+# default: MIN, choices: ['FIX', 'MIN', 'FAP', 'AA', 'AAA'], required: False
 #alignment: MIN
 #  
 # The default angle units to use, deg: degrees, rad: radians.

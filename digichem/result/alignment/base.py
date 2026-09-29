@@ -317,5 +317,16 @@ class Minimal(Alignment, Axis_swapper_mix):
         self.reassign_axes()
         
     
-    
-    
+class Fixed(Alignment):
+    """
+    An alignment method that does nothing at all.
+    """
+
+    # Names that uniquely describe this alignment protocol.
+    CLASS_HANDLE = ["Fixed", "FIX"]
+
+    def align_axes(self):
+        """
+        The 'main' method of this alignment class; executes the necessary transformations to align the given atoms.
+        """
+        pass
