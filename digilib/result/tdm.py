@@ -40,7 +40,7 @@ class Transition_dipole_moment_ABC(Dipole_moment_ABC):
             (data['origin']['x']['value'], data['origin']['y']['value'], data['origin']['z']['value']),
             (data['vector']['x']['value'], data['vector']['y']['value'], data['vector']['z']['value']),
             atoms = result_set.atoms
-            )
+        )
         
     def _dump_(self, digichem_options, all):
         """

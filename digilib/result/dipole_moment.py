@@ -42,12 +42,17 @@ class Dipole_moment_ABC(Result_object):
         """
         super().__init__()
         # The start of our vector, normally (0,0,0).
-        self.origin_coords = origin_coords
+        self.origin_coords = self._origin_coords = origin_coords
         # The end of our vector.
-        self.vector_coords = vector_coords
+        self.vector_coords = self._vector_coords = vector_coords
         
         # Save our atoms object.
         self.atoms = atoms if atoms is not None else []
+
+        # TODO: This is a bit janky...
+        if hasattr(atoms, 'hasRun') and atoms.hasRun:
+            self.origin_coords = self.atoms.apply_transformation(self._origin_coords)
+            self.vector_coords = self.atoms.apply_transformation(self._vector_coords)
         
         # Save a name describing which dipole we are (permanent vs transition etc).
         self.dipole_type = "permanent"
@@ -59,39 +64,39 @@ class Dipole_moment_ABC(Result_object):
         """
         return "PDM"
     
-    @property
-    def origin_coords(self):
-        """
-        The origin coords of this vector as a tuple of (x, y, z). origin_coords is automatically realigned by the atoms alignment object of this dipole, use _origin_coords if you do not want this behaviour.
-        """
-        if len(self.atoms) > 0:
-            return self.atoms.apply_transformation(self._origin_coords)
-        else:
-            return self._origin_coords
+    # @property
+    # def origin_coords(self):
+    #     """
+    #     The origin coords of this vector as a tuple of (x, y, z). origin_coords is automatically realigned by the atoms alignment object of this dipole, use _origin_coords if you do not want this behaviour.
+    #     """
+    #     if False or len(self.atoms) > 0:
+    #         return self.atoms.apply_transformation(self._origin_coords)
+    #     else:
+    #         return self._origin_coords
         
-    @origin_coords.setter
-    def origin_coords(self, value):
-        """
-        Set the origin coords of this dipole.
-        """
-        self._origin_coords = value
+    # @origin_coords.setter
+    # def origin_coords(self, value):
+    #     """
+    #     Set the origin coords of this dipole.
+    #     """
+    #     self._origin_coords = value
         
-    @property
-    def vector_coords(self):
-        """
-        The ending coords of this vector as a tuple of (x, y, z). vector_coords is automatically realigned by the atoms alignment object of this dipole, use _vector_coords if you do not want this behaviour.
-        """
-        if len(self.atoms) > 0:
-            return self.atoms.apply_transformation(self._vector_coords)
-        else:
-            return self._vector_coords
+    # @property
+    # def vector_coords(self):
+    #     """
+    #     The ending coords of this vector as a tuple of (x, y, z). vector_coords is automatically realigned by the atoms alignment object of this dipole, use _vector_coords if you do not want this behaviour.
+    #     """
+    #     if False or len(self.atoms) > 0:
+    #         return self.atoms.apply_transformation(self._vector_coords)
+    #     else:
+    #         return self._vector_coords
         
-    @vector_coords.setter
-    def vector_coords(self, value):
-        """
-        Set the ending coords of this dipole.
-        """
-        self._vector_coords = value
+    # @vector_coords.setter
+    # def vector_coords(self, value):
+    #     """
+    #     Set the ending coords of this dipole.
+    #     """
+    #     self._vector_coords = value
         
     def __float__(self):
         """
@@ -342,7 +347,7 @@ class Dipole_moment(Dipole_moment_ABC, Electric_dipole_moment_mixin):
         :result: A single Dipole_moment object, or None if no dipole information is available.
         """
         try:
-            return self(parser.data.moments[0], parser.data.moments[1], parser.results.atoms)
+            return self(parser.results.atoms.apply_transformation(parser.data.moments[0]), parser.results.atoms.apply_transformation(parser.data.moments[1]), parser.results.atoms)
         except AttributeError:
             return None
     

@@ -4,38 +4,60 @@ import datetime
 
 from configurables.parent import Dynamic_parent
 
-from digilib.result.atom import Atom_list
+import digilib.log
+from digilib.result.atom import Atom_list, Atom
 
 
 class Alignment(Atom_list, Dynamic_parent):
     """
     A class that carries out a series of transformations to realign the Cartesian axes of a set of atoms in a particular manner.
     """
+
+    translations: tuple[float, float, float]
+    "The translations applied to all atoms, in the x, y, and z directions, in A."
+    rotations: list[tuple[int, float]]
+    "The rotations in radians applied to all atoms. This is a list of tuples, of the form (axis, angle), where axis is 0 = X, 1 = Y, 2 = Z."
+    duration: datetime.datetime
+    "How long did it take to orientate?"
+    hasRun: bool
+    "Whether this method has actually been performed (can be False if the data was re-loaded from a previous run)"
     
-    def __init__(self, atoms, *args, charge = None, **kwargs):
+    def __init__(self, atoms, *args, charge = None, _ornt_data = None, **kwargs):
         """
         Constructor for this alignment class.
         
         :param atoms: The list of atoms to transform (can be any object that provides a 'coords' attribute which is a tuple of (x, y, z) coordinates.) Note that these coordinates will be transformed in place, so make a copy of your atom list if you want to preserve your original coordinates.
+        :param charge: The overall electronic charge of the atom cluster.
         """
         # Call our parent first.
         super().__init__(atoms, *args, charge = charge, **kwargs)
         
         # Keep track of the transformation we make so we can apply them later.
-        # The translations applied to all atoms. 
         self.translations = (0, 0, 0)
-        # The rotations in radians applied to all atoms. This is a list of tuples, of the form (axis, angle), where axis is 0 = X, 1 = Y, 2 = Z.
         self.rotations = []
-        # And transform (if we have some atoms).
         self.duration = None
-        if len(self) > 0:
-            start_timer = timer()
-            self.align_axes()
-            end_timer = timer()
-            self.duration = datetime.timedelta(seconds = end_timer - start_timer)
-            
-        #self.debug_print()
-        #exit()
+        self.hasRun = False
+
+        # And transform (if we have some atoms).
+        # Next, decide if we need to run our alignment, or if we can re-use some previous data.
+        if _ornt_data is None or _ornt_data['method'] != self.human_method_type:
+            if _ornt_data is not None:
+                # Different method.
+                digilib.log.get_logger().debug("Alignment method has changed from '{}' to '{}', realigning".format(_ornt_data['method'], self.human_method_type))
+
+            # No previous method.
+            if len(self) > 0:
+                start_timer = timer()
+                self.hasRun = True
+                self.align_axes()
+                end_timer = timer()
+                self.duration = datetime.timedelta(seconds = end_timer - start_timer)
+
+        else:
+            # We are re-loading data from a previous orientation.
+            self.translations = _ornt_data['translations']
+            self.rotations = _ornt_data['rotations']
+            self.duration = _ornt_data['duration']
     
     @property
     def method_type(self):
@@ -256,27 +278,58 @@ class Alignment(Atom_list, Dynamic_parent):
             "value": self.duration.total_seconds(),
             "units": "s"
         }
+        dump_dict['translations'] = {
+            'x': {
+                'units': 'Å',
+                'value': float(self.translations[0])
+            },
+            'y': {
+                'units': 'Å',
+                'value': float(self.translations[1])
+            },
+            'z': {
+                'units': 'Å',
+                'value': float(self.translations[2])
+            }
+        }
+        dump_dict['rotations'] = [{
+            'axis': rotation[0],
+            'angle': {
+                'units': 'rad',
+                'value': float(rotation[1])
+            }
+        } for rotation in self.rotations]
         return dump_dict
     
-    
-#     @classmethod
-#     def merge(self, *multiple_lists):
-#         """
-#         Merge multiple lists of atoms into a single list.
-#         
-#         Note that it does not make logical sense to combine different list of atoms into one; hence the method only ensures that all given lists are the same and then returns the first given.
-#         If the atom lists are not equivalent, a warning will be issued.
-#         If any of the alignment methods are not the same, a warning will be issued.
-#         """
-#         alignment = multiple_lists[0]
-#         
-#         # Check all other lists are the same.
-#         for atom_list in multiple_lists[1:]:
-#             if type(alignment) != type(atom_list):
-#                 warnings.warn("")
-#                 
-#         # Return the 'merged' list.
-#         return alignment
+    @classmethod
+    def from_dump(self, data, result_set, options, *args):
+        """
+        Get an instance of this class from its dumped representation.
+        
+        :param data: The data to parse.
+        :param result_set: The partially constructed result set which is being populated.
+        """
+        # We want to avoid re-running a previous alignment if we are using the same method.
+        # Unfortunately, we can't tell exactly what our method is until we have an object constructed.
+        try:
+            # Same method, reload the old data.
+            _ornt_data = {
+                'method': data['alignment_method'],
+                'translations': (data['translations']['x']['value'], data['translations']['y']['value'], data['translations']['z']['value']),
+                'rotations': [(rotation['axis'], rotation['angle']['value']) for rotation in data['rotations']],
+                'duration': datetime.timedelta(seconds=data['alignment_duration']['value'])
+            }
+
+            return self(Atom.list_from_dump(data['values'], result_set, options), *args,  charge = data['charge'], _ornt_data = _ornt_data)
+
+        except KeyError:
+            if all(k in data for k in ('translations', 'rotations', 'duration')):
+                # Something weird has happened.
+                raise
+
+            # Legacy data.
+            digilib.log.get_logger().debug("This legacy data is missing some alignment parameters; re-running alignment")
+            return self(Atom.list_from_dump(data['values'], result_set, options), *args,  charge = data['charge'])
     
     
 class Axis_swapper_mix():

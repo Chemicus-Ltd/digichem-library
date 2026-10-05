@@ -439,8 +439,7 @@ class Atom_list(Result_container, Unmergeable_container_mixin, Molecule_mixin):
         Get an Atom_list object from an output file parser.
         
         :param parser: An output file parser.
-        :param charge: Charge of the system.
-        :return: A list of TDM objects.
+        :return:
         """
         return self(Atom.list_from_parser(parser), *args, charge = parser.results.metadata.charge)
     
