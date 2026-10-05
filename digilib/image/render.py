@@ -634,8 +634,8 @@ class Dipole_image_maker(Structure_image_maker):
         ]:
             if dipole is not None:
                 dipoles.append([
-                    [float(coord * scaling) for coord in dipole.origin_coords],
-                    [float(coord * scaling) for coord in dipole.vector_coords],
+                    [float(coord) for coord in dipole.origin_coords],
+                    [float((coord - dipole.origin_coords[index]) * scaling + (dipole.origin_coords[index])) for index, coord in enumerate(dipole.vector_coords)],
                     colour
                 ])
         
@@ -719,7 +719,7 @@ class Transition_dipole_image_maker(Dipole_image_maker):
             magnetic_dipole_moment = magnetic_dipole_moment,
             cube_file = cube_file,
             rotations = rotations,
-            scaling = options['render']['dipole_moment']['scaling'],
+            scaling = options['render']['transition_dipole_moment']['electric_scaling'],
             magnetic_scaling = options['render']['transition_dipole_moment']['magnetic_scaling'],
             options = options,
             **kwargs

@@ -694,9 +694,11 @@ class Dipole_image_maker(Structure_image_maker):
             return ( (0.0,0.0,0.0), (0.0,0.0,0.0))
         
         else:
+            # We don't use the normal origin_coords/vector_coords because these are already rotated, while we want/need to do this rotation with the camera in VMD.
+            # Hence use _origin_coords/_vector_coods, which aren't rotated.
             return (
-                tuple([coord * scaling for coord in dipole._origin_coords]),
-                tuple([coord * scaling for coord in dipole._vector_coords])
+                tuple([float(coord) for coord in dipole._origin_coords]),
+                tuple([float((coord - dipole._origin_coords[index]) * scaling + (dipole._origin_coords[index])) for index, coord in enumerate(dipole._vector_coords)])
             ) 
         
     @property
@@ -714,8 +716,6 @@ class Dipole_image_maker(Structure_image_maker):
             "{}".format(self.rendering_style),
             "{}".format(self.prepared_translations),
             "{}".format(self.prepared_rotations),
-            # We don't use the normal origin_coords/vector_coords because these are already rotated, while we want/need to do this rotation with the camera in VMD.
-            # Hence use _origin_coords/_vector_coods, which aren't rotated.
             # Dipole 1 (electric).
             "{}:{}:{}".format(*self.get_coords(self.dipole_moment, self.scaling)[0]),
             "{}:{}:{}".format(*self.get_coords(self.dipole_moment, self.scaling)[1]),
