@@ -3,6 +3,7 @@
 import pytest
 import datetime
 from pathlib import Path
+import numpy
 
 import digilib.config
 from digilib.datas import get_resource
@@ -109,30 +110,33 @@ def check_float_list(test_list, expected_list, abs = 1e-4):
         assert test_list[list_index] == pytest.approx(expected_list[list_index], abs=abs)
 
 
-def check_dipole(dipole_moment, coords, abs_value = 1e-4):
+def check_dipole(dipole_moment, coords, abs = 1e-4):
     """
     Helper function to check a dipole moment (PDM, TEDM or TMDM) matches some expected values.
     """
-    check_float_list(dipole_moment.vector_coords, coords, abs_value)
+    check_float_list(dipole_moment.vector_coords, coords, abs)
         
     # Check total
-    assert dipole_moment.total == pytest.approx((coords[0] **2 + coords[1] **2 + coords[2] **2) **0.5, abs = abs_value)
+    assert dipole_moment.total == pytest.approx((coords[0] **2 + coords[1] **2 + coords[2] **2) **0.5, abs = abs)
 
-
-def check_float_dict(test_dict, expected_dict, abs_value = 1e-4, _key = None):
+absolute = abs
+def check_float_dict(test_dict, expected_dict, abs = 1e-4, _key = None):
     """
     Helper function to compare dicts that might contain floats.
     """
     _key = _key or []
 
-    if isinstance(test_dict, float) or isinstance(expected_dict, float):
+    if (isinstance(test_dict, float) and numpy.isnan(test_dict)) or (isinstance(expected_dict, float) and numpy.isnan(expected_dict)):
+        assert numpy.isnan(test_dict) and numpy.isnan(expected_dict)
+
+    elif isinstance(test_dict, float) or isinstance(expected_dict, float):
         try:
-            assert test_dict == pytest.approx(expected_dict, abs=abs_value)
+            assert test_dict == pytest.approx(expected_dict, abs=abs)
         except AssertionError:
             raise AssertionError("{} with value '{}' does not equal '{}'".format(".".join(_key), test_dict, expected_dict))
 
     elif isinstance(test_dict, datetime.datetime) or isinstance(expected_dict, datetime.datetime):
-        assert abs((test_dict - expected_dict).total_seconds()) < 0.001
+        assert absolute((test_dict - expected_dict).total_seconds()) < 0.001
     
     elif isinstance(test_dict, list) or isinstance(expected_dict, list):
         assert len(test_dict) == len(expected_dict)
