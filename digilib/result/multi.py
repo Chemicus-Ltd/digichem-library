@@ -59,7 +59,12 @@ class Merged(Result_set):
         # Merge remaining attributes.
         attrs = {}
         for attr in ["energies", "pdm", "excited_states", "vibrations", "soc"]:
-            attrs[attr] = type(getattr(results[0], attr)).merge(*[getattr(result, attr) for result in results])
+            try:
+                attrs[attr] = type(getattr(results[0], attr)).merge(*[getattr(result, attr) for result in results])
+
+            except AttributeError:
+                # Don't seem to have this result type.
+                pass
         
         # Get a new ground state.
         ground_state = Ground_state.from_energies(merged_metadata.charge, merged_metadata.multiplicity, attrs['energies'])
