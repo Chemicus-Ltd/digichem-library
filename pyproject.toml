@@ -19,7 +19,7 @@ dependencies = [
     "dill",
     "matplotlib",
     "openprattle",
-    "periodictable",
+    "periodictable < 2",
     "pillow",
     "pyyaml",
     "rdkit",
