@@ -64,7 +64,10 @@ def expand_path(pth):
     pth = str(pth)
     
     pth = pth.replace("$DIGILIB", str(get_resource("data")))
-    pth = pth.replace("$DIGICHEM", str(get_resource("data", pkg = 'digichem')))
+    try:
+        pth = pth.replace("$DIGICHEM", str(get_resource("data", pkg = 'digichem')))
+    except ModuleNotFoundError:
+        pass
     pth = pth.replace("$HOSTNAME", str(socket.gethostname()))
     pth = os.path.expanduser(pth)
     pth = os.path.expandvars(pth)
