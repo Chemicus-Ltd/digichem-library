@@ -7,7 +7,7 @@ import pytest
 import yaml
 
 from digilib.parse import parse_calculation, parse_multiple_calculations, parse_and_merge_calculations
-from digilib.test.util import data_directory, result_files, digichem_options
+from digilib.test.util import data_directory, result_files, digichem_options, check_float_dict
 from digilib.result import Result_set
 
 @pytest.mark.parametrize("result_data", list(itertools.chain(*list(result_files.values()))))
@@ -83,10 +83,8 @@ def test_dump_and_parse(result_files, tmp_path, digichem_options):
     parsed_dump['atoms'].pop("alignment_duration")
     
     # Try and get some decent error reporting out of pytest.
-    for key in raw_dump:
-        assert raw_dump[key] == parsed_dump[key]
+    check_float_dict(raw_dump, parsed_dump)
     
-    assert raw_dump == parsed_dump
 
 @pytest.mark.parametrize(
     "result_files, num_archives",
