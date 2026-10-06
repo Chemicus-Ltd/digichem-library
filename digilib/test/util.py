@@ -1,6 +1,7 @@
 """Common testing utilities and convenience functions."""
 
 import pytest
+import datetime
 from pathlib import Path
 
 import digilib.config
@@ -108,14 +109,49 @@ def check_float_list(test_list, expected_list, abs = 1e-4):
         assert test_list[list_index] == pytest.approx(expected_list[list_index], abs=abs)
 
 
-def check_dipole(dipole_moment, coords, abs = 1e-4):
+def check_dipole(dipole_moment, coords, abs_value = 1e-4):
     """
     Helper function to check a dipole moment (PDM, TEDM or TMDM) matches some expected values.
     """
-    check_float_list(dipole_moment.vector_coords, coords, abs)
+    check_float_list(dipole_moment.vector_coords, coords, abs_value)
         
     # Check total
-    assert dipole_moment.total == pytest.approx((coords[0] **2 + coords[1] **2 + coords[2] **2) **0.5, abs = abs)
+    assert dipole_moment.total == pytest.approx((coords[0] **2 + coords[1] **2 + coords[2] **2) **0.5, abs = abs_value)
+
+
+def check_float_dict(test_dict, expected_dict, abs_value = 1e-4, _key = None):
+    """
+    Helper function to compare dicts that might contain floats.
+    """
+    _key = _key or []
+
+    if isinstance(test_dict, float) or isinstance(expected_dict, float):
+        try:
+            assert test_dict == pytest.approx(expected_dict, abs=abs_value)
+        except AssertionError:
+            raise AssertionError("{} with value '{}' does not equal '{}'".format(".".join(_key), test_dict, expected_dict))
+
+    elif isinstance(test_dict, datetime.datetime) or isinstance(expected_dict, datetime.datetime):
+        assert abs((test_dict - expected_dict).total_seconds()) < 0.001
+    
+    elif isinstance(test_dict, list) or isinstance(expected_dict, list):
+        assert len(test_dict) == len(expected_dict)
+
+        for index, value in enumerate(test_dict):
+            check_float_dict(value, expected_dict[index], _key = [*_key, str(index)])
+            
+    
+    elif isinstance(test_dict, dict) or isinstance(expected_dict, dict):
+        assert len(test_dict) == len(expected_dict)
+
+        for key, value in test_dict.items():
+            check_float_dict(value, expected_dict[key], _key = [*_key, key])
+    
+    else:
+        try:
+            assert test_dict == expected_dict
+        except AssertionError:
+                    raise AssertionError("{} with value '{}' does not equal '{}'".format(".".join(_key), test_dict, expected_dict))
 
 
 def check_orbitals(orbitals, num_occ, num_unocc, homo, lumo):
