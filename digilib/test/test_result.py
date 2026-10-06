@@ -3,6 +3,7 @@
 import pytest
 from pathlib import Path
 import scipy.constants
+import periodictable
 
 from digilib.parse import parse_calculation
 from digilib.parse.util import parse_and_merge_calculations
@@ -138,6 +139,11 @@ def orca_nmr_result(digichem_options):
 def orca_ES_result(digichem_options):
     return parse_calculation(Path(data_directory(), "Pyridine/Orca Excited States TDA 10 Singlets 10 Triplets PBE0 (GD3BJ) Gas Phase Pople Basis Sets STO-3G.tar.gz"), options = digichem_options)
 
+
+# Check ptable is working correctly.
+def test_ptable_masses():
+    assert periodictable.formula("C").mass == pytest.approx(12.0107)
+    assert periodictable.formula("H").mass == pytest.approx(1.00794)
 
 @pytest.mark.parametrize("result_set, num, final", [
         (pytest.lazy_fixture("gaussian_SP_result"), 1, -10488.990333747),
