@@ -565,7 +565,7 @@ class Atom_list(Result_container, Unmergeable_container_mixin, Molecule_mixin):
         mol.UpdatePropertyCache()
         rdDetermineBonds.DetermineConnectivity(mol, charge = self.charge)
         try:
-            rdDetermineBonds.DetermineBonds(mol, charge = self.charge)
+            rdDetermineBonds.DetermineBonds(mol, charge = self.charge, maxIterations=1000)
         
         except Exception:
             #formula_string may also not be implemented...
