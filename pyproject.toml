@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "digilib"
+name = "digichem-library"
 dynamic = ["version"]
 authors = [
     {name = "Oliver S. Lee", email = "osl@digi-chem.ac.uk"},
