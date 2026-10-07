@@ -43,7 +43,7 @@ jobs:
     - name: Install PySOC
       run: |
         cd ~/
-        git clone https://github.com/Digichem-Project/pysoc.git
+        git clone https://github.com/Chemicus-Ltd/pysoc.git
         pip install -r pysoc/requirements.txt
         echo "PYTHONPATH=$PYTHONPATH:$HOME/pysoc" >> $GITHUB_ENV
         echo "$HOME/pysoc/bin" >> $GITHUB_PATH

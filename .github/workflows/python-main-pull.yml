@@ -43,7 +43,7 @@ jobs:
     - name: Install PySOC
       run: |
         cd ~/
-        git clone https://github.com/Digichem-Project/pysoc.git
+        git clone https://github.com/Chemicus-Ltd/pysoc.git
         pip install -r pysoc/requirements.txt
         echo "PYTHONPATH=$PYTHONPATH:$HOME/pysoc" >> $GITHUB_ENV
         echo "$HOME/pysoc/bin" >> $GITHUB_PATH
@@ -56,7 +56,7 @@ jobs:
     - name: Download blender
       run: |
         cd ~/
-        wget https://github.com/Digichem-Project/build-boy/releases/download/6.8.2-CentOS-Stream-8/blender.4.4.batoms.CentOS-Stream-8.tar.gz -O blender.tar.gz --quiet
+        wget https://github.com/Chemicus-Ltd/build-boy/releases/download/6.8.2-CentOS-Stream-8/blender.4.4.batoms.CentOS-Stream-8.tar.gz -O blender.tar.gz --quiet
         tar -xzf blender.tar.gz
         cd blender
         ln -s blender batoms-blender
