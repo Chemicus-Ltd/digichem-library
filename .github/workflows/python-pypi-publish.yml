@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/digichem-core
+      url: https://pypi.org/p/digilib
     permissions:
       id-token: write
 
