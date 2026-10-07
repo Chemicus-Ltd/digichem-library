@@ -52,6 +52,7 @@ class Alignment(Atom_list, Dynamic_parent):
                 self.align_axes()
                 end_timer = timer()
                 self.duration = datetime.timedelta(seconds = end_timer - start_timer)
+                digilib.log.get_logger().debug("Finished atomic alignment")
 
         else:
             # We are re-loading data from a previous orientation.
@@ -327,9 +328,9 @@ class Alignment(Atom_list, Dynamic_parent):
                 # Something weird has happened.
                 raise
 
-            # Legacy data.
-            digilib.log.get_logger().debug("This legacy data is missing some alignment parameters; re-running alignment")
-            return self(Atom.list_from_dump(data['values'], result_set, options), *args,  charge = data['charge'])
+        # Legacy data.
+        digilib.log.get_logger().debug("This legacy data is missing some alignment parameters; re-running alignment")
+        return self(Atom.list_from_dump(data['values'], result_set, options), *args,  charge = data['charge'])
     
     
 class Axis_swapper_mix():
