@@ -10,7 +10,7 @@ from digilib.datas import get_resource
 # Package metadata.#
 ####################
 
-__version__ = "8.0.0-pre.4"
+__version__ = "8.0.0"
 _v_parts = __version__.split("-")[0].split(".")
 major_version = int(_v_parts[0])
 minor_version = int(_v_parts[1])
