@@ -36,13 +36,13 @@ Please refer to the main Digichem [documentation](https://doc.digi-chem.co.uk) f
 Digichem-library can be installed using pip. Simply run the following command:
 
 ```Shell
-pip install digilib
+pip install digichem-library
 ```
 
 Or, on some platforms:
 
 ```Shell
-pip3 install digilib
+pip3 install digichem-library
 ```
 
 ## Usage
