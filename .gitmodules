@@ -1,3 +1,3 @@
-[submodule "digichem/test/data"]
-	path = digichem/test/data
-	url = https://github.com/Digichem-Project/digichem-test-data.git
+[submodule "digilib/test/data"]
+	path = digilib/test/data
+	url = https://github.com/Chemicus-Ltd/digichem-test-data.git
