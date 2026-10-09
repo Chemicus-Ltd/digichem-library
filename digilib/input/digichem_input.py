@@ -486,11 +486,11 @@ def si_from_file(file_name, file_type = None, *, gen3D = None, **kwargs):
                 except Exception as e:
                     # No good, see if we can use obabel.
                     try:
-                        com_file = Openprattle_converter(file_name, file_type).convert("com", gen3D = gen3D)
+                        com_file = Openprattle_converter(input_file_path = file_name, input_file_type = file_type).convert("com", gen3D = gen3D)
                     
                     except Exception:
                         # Also no good, re-raise original exception.
-                        raise e
+                        raise e from None
                     
                     # Worked with fallback, log a message.
                     digilib.log.get_logger().warning(f"Failed to parse calculation output file '{file_name}'; using Obabel fallback mechanism")
