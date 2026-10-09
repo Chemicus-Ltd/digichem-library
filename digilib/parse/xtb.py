@@ -32,7 +32,7 @@ class Xtb_parser(Cclib_parser, Std2_parser_mixin):
         super()._parse()
 
         # If atomcoords are missing, add those from topo file.
-        if self.data.atomcoords.size == 0 and self.auxiliary_files['topology_file'] is not None:
+        if self.data.atomcoords.size == 0 and self.auxiliary_files.get('topology_file', None) is not None:
             # Parse the file.
             si = si_from_file(self.auxiliary_files['topology_file'])
 
