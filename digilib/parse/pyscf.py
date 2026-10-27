@@ -22,8 +22,7 @@ class Pyscf_parser(Parser_abc, Std2_parser_mixin):
     
     def __init__(self, mol_name, methods, **kwargs):
         self.methods = methods
-        self.mol_name = mol_name
-        super().__init__(**kwargs)
+        super().__init__(mol_name = mol_name, **kwargs)
 
     def _parse(self):
         """
