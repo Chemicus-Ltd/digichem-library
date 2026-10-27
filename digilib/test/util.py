@@ -204,7 +204,12 @@ def check_report(report_folder, base_name, *,
     Check that certain report and image files have been correctly rendered.
     """
     # First, check the report file itself is there
-    assert (Path(report_folder, f"{base_name}.journal.pdf").exists() and Path(report_folder, f"{base_name}.traditional.pdf").exists()) or Path(report_folder, f"{base_name}.pdf").exists()
+    try:
+        assert Path(report_folder, f"{base_name}.journal.pdf").exists()
+        assert Path(report_folder, f"{base_name}.traditional.pdf").exists()
+    
+    except AssertionError:
+        assert Path(report_folder, f"{base_name}.pdf").exists()
     
     # Now check for images.
     image_folder = Path(report_folder, "image")
