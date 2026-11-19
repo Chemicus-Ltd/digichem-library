@@ -24,9 +24,16 @@ jobs:
       with:
         submodules: recursive
     - name: Set up Python 3.9
-      uses: actions/setup-python@v3
+      uses: conda-incubator/setup-miniconda@v3
       with:
+        activate-environment: digilib
+        auto-activate-base: false
+        auto-update-conda: true
         python-version: "3.9"
+    # - name: Set up Python 3.12
+    #   uses: actions/setup-python@v3
+    #   with:
+    #     python-version: "3.12"
     - name: Install openbabel
       run: |
         sudo apt install openbabel libopenbabel-dev
