@@ -161,4 +161,3 @@ def test_profile_parsing(digichem_options):
     res = parse_calculation(src, options = digichem_options)
 
     assert res.metadata.performance is not None
-

@@ -170,8 +170,12 @@ class Parser_abc():
 
         # If we're missing geometry info, and we have some defaults, apply those.
         if self.atom_defaults is not None and hasattr(self.atom_defaults, 'atoms'):
-            if self.data.atomnos is None or self.data.atomcoords is None or len(self.data.atomnos) != len(self.data.atomcoords):
-                digilib.log.get_logger().debug("Atom data is missing from parsed data, using supplied atom_defaults instead")
+            atomcoords_length = 0
+            if len(self.data.atomcoords) > 0:
+                atomcoords_length = len(self.data.atomcoords[0])
+
+            if self.data.atomnos is None or self.data.atomcoords is None or len(self.data.atomnos) != atomcoords_length:
+                digilib.log.get_logger().warning("Atom data is missing from parsed data, using supplied atom_defaults instead")
                 atomnos = []
                 atomcoords = []
                 for atom in self.atom_defaults.atoms:
