@@ -5,6 +5,7 @@ from pathlib import Path
 import scipy.constants
 import periodictable
 
+from digilib.input import si_from_file
 from digilib.parse import parse_calculation
 from digilib.parse.util import parse_and_merge_calculations
 from digilib.test.util import data_directory, digichem_options
@@ -216,7 +217,33 @@ def test_atoms(result_set):
     # Check mass.
     assert result_set.raw_atoms.molar_mass == pytest.approx(128.1706)
     
-    # We don't check positions here because these can vary from calc to calc due to reorientation...
+
+def test_coords(digichem_options):
+    """Check that parsed atoms are correct."""
+    src = Path(data_directory(), 'Pyridine/Gaussian 16 Optimisation Frequencies PBE1PBE (GD3BJ) Toluene 6-31G(d,p).tar.gz')
+
+    res = parse_calculation(
+        src,
+        options = digichem_options,
+        ornt = "FIX",
+        parser_options= {
+            "atom_defaults": si_from_file(Path(data_directory(), "Input/Water.xyz"))
+        }
+    )
+
+    assert len(res.atoms) == 11
+    assert [atom.element.number for atom in res.atoms] == [6,6,6,6,6,7,1,1,1,1,1]
+    assert res.atoms[0].coords ==  (-1.138660, -0.719954,  0.000020)
+    assert res.atoms[1].coords ==  (-1.195398,  0.670932, -0.000022)
+    assert res.atoms[2].coords ==  (-0.000026,  1.381785, -0.000019)
+    assert res.atoms[3].coords ==  (1.195374,   0.670971, -0.000020)
+    assert res.atoms[4].coords ==  (1.138689,  -0.719912,  -0.000027)
+    assert res.atoms[5].coords ==  (0.000024,  -1.417214,   0.000062)
+    assert res.atoms[6].coords ==  (-2.057065, -1.304628,   0.000036)
+    assert res.atoms[7].coords ==  (-2.154046,  1.179423,  -0.000039)
+    assert res.atoms[8].coords ==  (-0.000039,  2.467821,  -0.000045)
+    assert res.atoms[9].coords == (2.153999,    1.179506,  -0.000020)
+    assert res.atoms[10].coords == (2.057110,  -1.304559,   0.000044)
 
 
 @pytest.mark.parametrize("result_set, length, width, height", [
